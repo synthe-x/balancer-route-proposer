@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from "http";
-import { a, b } from './src/sor';
+import { b } from './src/sor';
 import {Graph} from './src/graph/graph'
 const app = express();
 

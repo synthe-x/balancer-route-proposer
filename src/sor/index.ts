@@ -1,8 +1,11 @@
-import { BalancerSDK, BalancerSdkConfig, Network, parseFixed, PoolWithMethods } from '@balancer-labs/sdk';
+import { BalancerSDK, BalancerSdkConfig, Network, parseFixed, PoolFilter, PoolWithMethods, SOR, TokenPriceProvider } from '@balancer-labs/sdk';
 import { parseEther } from 'ethers/lib/utils';
 import Big from 'big.js'
 import { Graph } from '../graph/graph';
 import axios from 'axios';
+import { ethers } from 'ethers';
+import { queryStr } from '../helper/query';
+
 
 
 const config: BalancerSdkConfig = {
@@ -11,8 +14,12 @@ const config: BalancerSdkConfig = {
 };
 const balancer = new BalancerSDK(config);
 
-const { swaps } = balancer
+const { swaps, provider } = balancer
 
+
+//  let sor = new SOR(provider, )
+
+/*
 export async function a(amount: any, t1: string, t2: string) {
 
 
@@ -146,9 +153,9 @@ export async function a(amount: any, t1: string, t2: string) {
     console.log(outPut)
     return outPut
 
-}
+}*/
 
-b("100", "0x912ce59144191c1204e64559fe8253a0e49e6548", "0x5979d7b546e38e414f7e9822514be443a4800529");
+b("20", "0x4e352cF164E64ADCBad318C3a1e222E9EBa4Ce42", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1");
 
 export async function b(amount: any, t1: string, t2: string) {
     try {
@@ -157,41 +164,53 @@ export async function b(amount: any, t1: string, t2: string) {
             return console.log("AMOUNT_NOT_VALID")
         }
 
-        let getPrice: any;
+        let usdPrice: any;
+        let allPools: any;
 
         try {
-            getPrice = await axios.get(`https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/${t1}`);
+
+            let promise = await Promise.all(
+                [
+                    axios.get(`https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/${t1}`),
+                    axios({
+                        method: "post",
+                        url: "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2",
+                        data:
+                        {
+                            query: queryStr
+                        }
+                    })
+                ]);
+
+            usdPrice = promise[0]?.data.market_data?.current_price?.usd;
+            allPools = promise[1].data.data.pools
         }
         catch (error: any) {
             return console.log(error.response.data)
         }
-
+        // console.log(allPools)
         t1 = t1.toLowerCase();
         t2 = t2.toLowerCase();
-        let usdPrice = getPrice.data.market_data.current_price.usd;
         console.log(usdPrice)
-        if (!usdPrice) {
+        if (!usdPrice || !allPools) {
             console.log("Pair is not available")
         }
 
-        let allPools = await balancer.pools.all();
+        let graph = new Graph(25);
 
-        let graph = new Graph(30);
-
-        let count = 0;
+        // let count = 0;
 
         let input: any = [];
-
-
+ 
         let AllTokens: any = [];
         let AllTokensData: any = [];
 
         for (let ele of allPools) {
 
-            if (count >= 30) {
-                break
-            }
-            count++;
+            // if (count >= 30) {
+            //     break
+            // }
+            // count++;
             let id = ele.id;
             let tokens: any[] = [];
             let tokenData: any[][] = [];
@@ -201,9 +220,10 @@ export async function b(amount: any, t1: string, t2: string) {
                 if (!token.token?.latestUSDPrice) {
                     break;
                 }
-                tokens.push(token.address)
-                tokenData.push([token.symbol, token.token?.latestUSDPrice, token.decimals, id])
+                tokens.push(token.address);
+                tokenData.push([token.symbol, token.token?.latestUSDPrice, token.decimals, id]);
             }
+
             AllTokens.push(tokens);
             AllTokensData.push(tokenData);
 
@@ -218,7 +238,7 @@ export async function b(amount: any, t1: string, t2: string) {
                     .times(10 ** tokenData[tokens.indexOf(ele1)][2])
                     .div(tokenData[tokens.indexOf(ele1)][1])
                     .toFixed(0);
-
+                
                 for (let ele2 of _tokens) {
 
                     input.push(swaps.queryBatchSwap(
@@ -262,7 +282,7 @@ export async function b(amount: any, t1: string, t2: string) {
                     }
 
                     let res = query[_count]["value"].sort((a: any, b: any) => Number(a) - Number(b));
-                    // console.log(_count, "COunt")
+
                     _count++;
 
                     const expectedAmount = Big(_amount)
@@ -277,18 +297,19 @@ export async function b(amount: any, t1: string, t2: string) {
                     let actualAmount = Big(Math.abs(Number(res[0])))
                         .div(10 ** AllTokensData[i][AllTokens[i].indexOf(ele2)][2])
                         .times(AllTokensData[i][AllTokens[i].indexOf(ele2)][1]).toNumber();
+
                     // console.log(actualAmount, "AS")
                     let slipage = Big(expectedAmount).minus(actualAmount)
-                        // .plus(Big(usdPrice).times(amount))
                         .toNumber();
 
-                    // console.log("slipage", slipage)
+                    // console.log("amount", _amount)
+                    // console.log("slipage", slipage);
+                    slipage = slipage > 0 ? slipage : 0;
                     
-                    slipage = slipage < 0 ? 0 : slipage;
                     if (!slipage) slipage = 0;
                     graph.addVertex(ele1);
 
-                    graph.addEdge(ele1, ele2, slipage, AllTokensData[i][AllTokens[i].indexOf(ele2)][3])
+                    graph.addEdge(ele1, ele2, slipage, AllTokensData[i][AllTokens[i].indexOf(ele2)][3], _amount);
 
                 }
                 // console.log("===============")
@@ -298,8 +319,8 @@ export async function b(amount: any, t1: string, t2: string) {
 
         }
 
-        let res = await graph.dijkstra(t1);
-        // console.log(res)
+        let res = await graph.dijkstra(t1, Big(usdPrice).times(amount).toNumber(), t2);
+
         if (!res || !res[t2] || res[t2]["slipage"] == Infinity) {
             return console.log("no pair has found")
         }
@@ -317,14 +338,6 @@ export async function b(amount: any, t1: string, t2: string) {
         }
         outPut.reverse();
 
-        // outPut = outPut.map((x: any, i: number) => {
-        //     console.log(x.slipage)
-        //     x.slipage = Big(x.slipage)
-        //         .minus(Big((i + 1))
-        //             .times(usdPrice).times(amount))
-        //         .toNumber();
-        //     return x
-        // })
         console.log(outPut)
         return outPut
     } catch (error) {
