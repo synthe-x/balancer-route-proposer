@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from "http";
-import { b } from './src/sor';
+import { routeProposer } from './src/sor';
 import {Graph} from './src/graph/graph'
 const app = express();
 
@@ -11,9 +11,10 @@ const httpServer = createServer(app);
 let server = httpServer.listen(3010, function () {
     console.log("app running on port " + (3010));
 });
-let g = new Graph(10);
+// let g = new Graph();
 // a("1")
-// b("100", "0x912ce59144191c1204e64559fe8253a0e49e6548", "0x5979d7b546e38e414f7e9822514be443a4800529");
+routeProposer("100", "0x4e352cF164E64ADCBad318C3a1e222E9EBa4Ce42", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 0);
+
 function stop() {
     server.close();
 }

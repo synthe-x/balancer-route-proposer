@@ -5,7 +5,7 @@
 
 export const queryStr = `{
   
-        pools(first: 30, orderBy:totalLiquidity, orderDirection: desc) {
+        pools(first: 25, orderBy:totalLiquidity, orderDirection: desc) {
           id
           name
           address

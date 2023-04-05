@@ -8,10 +8,10 @@ import { Queue } from "./queue";
 const pq = new PriorityQueue();
 // For non directed graph
 export class Graph {
-    noOfVertices: number;
+    noOfVertices: number = 0;
     adList: Map<any, any>;
-    constructor(noOfVertices: number) {
-        this.noOfVertices = noOfVertices;
+    constructor() {
+
         // represent whole graph connections
         this.adList = new Map();
     }
@@ -20,15 +20,16 @@ export class Graph {
 
         if (!this.adList.get(asset)) {
             this.adList.set(asset, []);
+            this.noOfVertices++
         }
     }
 
-    addEdge(asset: any, conAsset: string, slipage: number, pool?: string, amount?: string) {
-        //this is adding edge asset to conAsset.
-        this.adList.get(asset).push({ conAsset: conAsset, slipage: slipage, pool: pool, amount: amount });
+    addEdge(asset: any, conToken: string, slipage: number, pool?: string, amount?: string) {
+        //this is adding edge asset to connectingToken
+        this.adList.get(asset).push({ conToken: conToken, slipage: slipage, pool: pool, amount: amount });
 
-        //this is adding conAsset target to Asset.
-        // this.adList.get(conAsset).push({ conAsset: asset, slipage: slipage, pool: pool });
+        //this is adding conToken target to Asset.
+        // this.adList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
     };
 
     printGraph() {
@@ -53,9 +54,9 @@ export class Graph {
 
             for (let e of vertices) {
 
-                if (!visited[e.conAsset]) {
-                    visited[e.conAsset] = true;
-                    queue.enQueue(e.conAsset);
+                if (!visited[e.conToken]) {
+                    visited[e.conToken] = true;
+                    queue.enQueue(e.conToken);
 
                 }
             }
@@ -106,15 +107,15 @@ export class Graph {
         console.log("Dis Count", disconnetedCount);
     }
 
-    dijkstra(source: string, addMargin: number, endSource?: any) {
+    dijkstra(source: string, endSource?: any) {
 
         let visited: any = {}
 
         let dist: any = {};
 
-        for (let ele of this.adList.keys()) {
-            dist[ele] = { slipage: Infinity };
-            dist[ele]["amount"] = "0";
+        for (let token of this.adList.keys()) {
+            dist[token] = { slipage: Infinity };
+            dist[token]["amount"] = "0";
         }
 
         if (dist[source] == undefined) {
@@ -149,43 +150,26 @@ export class Graph {
                 return a.slipage - b.slipage
             });
 
-            for (let ele of sourceAdj) {
+            for (let token of sourceAdj) {
 
-                if (!dist[ele.conAsset]) continue;
+                if (!dist[token.conToken]) continue;
 
-                if (visited[ele.conAsset]) {
+                if (visited[token.conToken]) {
                     continue;
                 }
 
-                // if (newSource === source) {
+                if (Number(dist[token.conToken]["slipage"]) > Number(dist[newSource]["slipage"]) + Number(token.slipage)) {
 
-                    if (Number(dist[ele.conAsset]["slipage"]) > Number(dist[newSource]["slipage"]) + Number(ele.slipage)) {
+                    dist[token.conToken] = { slipage: Number(dist[newSource]["slipage"]) + Number(token.slipage) };
 
-                        dist[ele.conAsset] = { slipage: Number(dist[newSource]["slipage"]) + Number(ele.slipage) };
+                    dist[token.conToken]["pool"] = token.pool;
 
-                        dist[ele.conAsset]["pool"] = ele.pool;
+                    dist[token.conToken]["asset"] = [newSource, token.conToken];
 
-                        dist[ele.conAsset]["asset"] = [newSource, ele.conAsset];
+                    dist[token.conToken]["amount"] = token.amount;
+                }
 
-                        dist[ele.conAsset]["amount"] = ele.amount;
-                    }
-                // }
-                // else {
-                //     // to make addMargin same for every level we are decreasing it 
-                //     if (Number(dist[ele.conAsset]["slipage"]) > Number(dist[newSource]["slipage"]) + Number(ele.slipage) - addMargin) {
-
-                //         dist[ele.conAsset] = { slipage: Number(dist[newSource]["slipage"]) + Number(ele.slipage) - addMargin };
-
-                //         dist[ele.conAsset]["pool"] = ele.pool;
-
-                //         dist[ele.conAsset]["asset"] = [newSource, ele.conAsset];
-
-                //         dist[ele.conAsset]["amount"] = ele.amount;
-
-                //     }
-                // }
-
-                pq.enqueue(ele.conAsset, Number(dist[ele.conAsset]["slipage"]))
+                pq.enqueue(token.conToken, Number(dist[token.conToken]["slipage"]))
 
             }
 
@@ -195,7 +179,7 @@ export class Graph {
     }
 }
 
-const g = new Graph(7);
+const g = new Graph();
 
 g.addVertex("USDT")
 g.addVertex("ETH")
@@ -207,20 +191,20 @@ g.addVertex("fUSD");
 
 // g.printGraph()
 
-g.addEdge("USDT", "ETH", 1 , "abcd");
-g.addEdge("ETH", "USDT", 2 , "abcd");
-g.addEdge("ETH", "BTC", 2 , "abcd");
-g.addEdge("USDC", "USDT", 1 , "abcd");
-g.addEdge("USDT", "USDC", 6 , "abcd");
-g.addEdge("USDC", "fUSD", 2 , "abcd");
-g.addEdge("USDC", "cUSD", 1 , "abcd");
-g.addEdge("BTC", "ETH", 1 , "abcd");
-g.addEdge("BTC", "fUSD", 1 , "abcd");
-g.addEdge("cUSD", "USDC", 1 , "abcd");
-g.addEdge("cUSD", "fUSD", 1 , "abcd");
-g.addEdge("fUSD", "BTC", 2 , "abcd");
-g.addEdge("fUSD", "cUSD", 1 , "abcd");
-g.addEdge("fUSD", "USDC", 1 , "abcd");
+g.addEdge("USDT", "ETH", 1, "abcd");
+g.addEdge("ETH", "USDT", 2, "abcd");
+g.addEdge("ETH", "BTC", 2, "abcd");
+g.addEdge("USDC", "USDT", 1, "abcd");
+g.addEdge("USDT", "USDC", 6, "abcd");
+g.addEdge("USDC", "fUSD", 2, "abcd");
+g.addEdge("USDC", "cUSD", 1, "abcd");
+g.addEdge("BTC", "ETH", 1, "abcd");
+g.addEdge("BTC", "fUSD", 1, "abcd");
+g.addEdge("cUSD", "USDC", 1, "abcd");
+g.addEdge("cUSD", "fUSD", 1, "abcd");
+g.addEdge("fUSD", "BTC", 2, "abcd");
+g.addEdge("fUSD", "cUSD", 1, "abcd");
+g.addEdge("fUSD", "USDC", 1, "abcd");
 
 
 
