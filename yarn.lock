@@ -34,12 +34,12 @@
   dependencies:
     tslib "^2.3.1"
 
-"@balancer-labs/sdk@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@balancer-labs/sdk/-/sdk-1.0.1.tgz#162f261e444f11d4d9f23e047307f57e48f9abb1"
-  integrity sha512-gpzCM68K16BUhrP9De5XOUjZBf37lvE++CiZ16aZ4Xow1iWfcJv14EL4m/PIkBJ4RwqBoHfr8rVRlrLOp/6W5Q==
+"@balancer-labs/sdk@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@balancer-labs/sdk/-/sdk-1.0.3.tgz#72a50c78dba6836742b3089efffc1659d15f511d"
+  integrity sha512-M+jvuuuqaDub4qZsRMkb/vx7WyA1Tuuq5+0esh9wcBHWdOhJT+gApW6HwWQSanRMyDDS/l9XUiTdhY9cKz8uNw==
   dependencies:
-    "@balancer-labs/sor" "^4.1.1-beta.6"
+    "@balancer-labs/sor" "^4.1.1-beta.7"
     "@ethersproject/abi" "^5.4.0"
     "@ethersproject/abstract-signer" "^5.4.0"
     "@ethersproject/address" "^5.4.0"
@@ -55,7 +55,7 @@
     json-to-graphql-query "^2.2.4"
     lodash "^4.17.21"
 
-"@balancer-labs/sor@^4.1.1-beta.6":
+"@balancer-labs/sor@^4.1.1-beta.7":
   version "4.1.1-beta.7"
   resolved "https://registry.yarnpkg.com/@balancer-labs/sor/-/sor-4.1.1-beta.7.tgz#709a12e4ea9543f6af2b2cd5746f46c799233497"
   integrity sha512-pb/IVYVeQXCvOZ06qoVJ2KGUTHeL4go9Je7Z5VSTYg26SYx8PNWEKeF9bdg/mo8TOweu4upcLj78PTNBLPF/fQ==

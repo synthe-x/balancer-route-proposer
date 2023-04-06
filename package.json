@@ -8,7 +8,7 @@
     "dev": "ts-node index.ts"
   },
   "dependencies": {
-    "@balancer-labs/sdk": "^1.0.1",
+    "@balancer-labs/sdk": "^1.0.3",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.7",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",

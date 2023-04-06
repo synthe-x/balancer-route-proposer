@@ -5,160 +5,27 @@ import { Graph } from '../graph/graph';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { queryStr } from '../helper/query';
-
-
+import { balancerPoolBySynthex, synthexPools, TokenMap } from '../helper/constant';
+import { fetchOracleData } from '../helper/getOracleDetails';
+import { promises as fs } from "fs";
+import path from "path";
 
 
 const config: BalancerSdkConfig = {
     network: Network.ARBITRUM,
-    rpcUrl: "https://rpc.ankr.com/arbitrum"                             //"https://endpoints.omniatech.io/v1/arbitrum/one/public",
+    rpcUrl: "https://arb1.arbitrum.io/rpc"                             //"https://endpoints.omniatech.io/v1/arbitrum/one/public",
 };
 const balancer = new BalancerSDK(config);
 
-const { swaps, provider } = balancer
+const { swaps } = balancer
 
+setInterval(() => {
+    swaps.fetchPools()
+    // console.log("FETCH Pool working")
+}, 10 * 1000)
+// 0x539bdE0d7Dbd336b79148AA742883198BBF60342   0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1  0x3082CC23568eA640225c2467653dB90e9250AaA0
 
-//  let sor = new SOR(provider, )
-
-/*
-export async function a(amount: any, t1: string, t2: string) {
-
-
-    let allPools = await balancer.pools.all();
-    let graph = new Graph(allPools.length);
-
-    let count = 0;
-    for (let ele of allPools) {
-
-        if (count > 1) {
-            break
-        }
-        count++;
-        let id = ele.id;
-
-        let tokens: any[] = [];
-        let tokenData: any[][] = [];
-
-        for (let token of ele.tokens) {
-            tokens.push(token.address)
-            if (!token.token?.latestUSDPrice) {
-                break;
-            }
-            tokenData.push([token.symbol, token.token.latestUSDPrice, token.decimals])
-        }
-
-        console.log(tokenData)
-        for (let ele1 of tokens) {
-
-            let tokensExceptCurrentToken = tokens.filter((x) => x != ele1);  // array not containg current token
-            if (tokens.length < 2 || !tokenData[tokens.indexOf(ele1)]) {
-                continue;
-            }
-
-            let _amount = Big(amount).times(10 ** tokenData[tokens.indexOf(ele1)][2]).toString();
-
-            for (let ele2 of tokensExceptCurrentToken) {
-                let query;
-
-                console.log(
-                    {
-                        poolId: id,
-                        assetInIndex: tokens.indexOf(ele1),
-                        assetOutIndex: tokens.indexOf(ele2),
-                        amount: _amount,
-                        userData: "0x"
-                    },
-                    tokens
-                )
-
-                if (!tokenData[tokens.indexOf(ele2)] || !tokenData[tokens.indexOf(ele1)]) {
-                    continue;
-                }
-
-                try {
-                    query = await swaps.queryBatchSwap(
-                        {
-                            swaps: [
-                                {
-                                    poolId: id,
-                                    assetInIndex: tokens.indexOf(ele1),
-                                    assetOutIndex: tokens.indexOf(ele2),
-                                    amount: _amount,
-                                    userData: "0x"
-                                }],
-                            assets: tokens,
-                            kind: 0,
-                        },
-                    );
-                }
-                catch (error: any
-                ) {
-                    console.log("Error", ele1, ele2);
-                }
-                if (!query) {
-                    continue;
-                }
-
-                query = query.sort((a: any, b: any) => Number(a) - Number(b));
-                console.log(query);
-
-                const expectedAmount = Big(_amount)
-                    .div((10 ** tokenData[tokens.indexOf(ele1)][2])).
-                    times(tokenData[tokens.indexOf(ele1)][1]).toNumber();
-                console.log(expectedAmount, "ES");
-
-                let actualAmount = Big(Math.abs(Number(query[0])))
-                    .div(10 ** tokenData[tokens.indexOf(ele2)][2])
-                    .times(tokenData[tokens.indexOf(ele2)][1]).toNumber();
-                console.log(actualAmount, "AS")
-                let slipage = Big(expectedAmount).minus(actualAmount).toNumber();
-
-                console.log("slipage", slipage)
-                slipage = slipage < 0 ? 0 : slipage;
-
-                if (!slipage) slipage = 0;
-                graph.addVertex(ele1);
-
-                graph.addEdge(ele1, ele2, slipage, id)
-
-            }
-            console.log("===========================================")
-        }
-
-
-
-
-
-    }
-    // 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1 dai
-    // 0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9 usdt
-
-    let res = await graph.dijkstra(t1, t2);
-    // console.log(res)
-
-    if (!res[t2] || res[t2]["slipage"] == Infinity) {
-        return console.log("no pair has found")
-    }
-
-    let outPut: any = [];
-    while (true) {
-        let currAsset = t2
-        outPut.push(res[currAsset])
-        if (res[currAsset]["asset"][0] != t1) {
-            t2 = res[currAsset]["asset"][0]
-        }
-        else {
-            break;
-        }
-    }
-    console.log(outPut)
-    return outPut
-
-}*/
-
-// 0x539bdE0d7Dbd336b79148AA742883198BBF60342
-
-routeProposer("100", "0x3082CC23568eA640225c2467653dB90e9250AaA0", "0x539bdE0d7Dbd336b79148AA742883198BBF60342", 0);
+routeProposer("100", "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "0x3082CC23568eA640225c2467653dB90e9250AaA0", 0);
 
 
 export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType): Promise<any> {
@@ -171,13 +38,24 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         if (kind != SwapType.SwapExactIn && kind != SwapType.SwapExactOut) {
             return console.log("KIND_NOT_VALID")
         }
-        ethers
-        let usdPrice: any;
+
+        let usdPrice: number;
         let allPools: any;
+
+        // const route =await balancer.swaps.findRouteGivenIn({
+        //     tokenIn: t1,
+        //     tokenOut: t2,
+        //     // amount: parseEther("1"),
+        //     amount: ethers.BigNumber.from("100000000"),
+        //     gasPrice: parseFixed("1",9),
+        //     maxPools: 3,
+        //   });
+        //   console.log(route)
+        //   return
 
         try {
 
-            let promise = await Promise.all(
+            const promise: any = await Promise.allSettled(
                 [
                     axios.get(`https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/${kind == SwapType.SwapExactIn ? t1 : t2}`),
                     axios({
@@ -187,75 +65,89 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                         {
                             query: queryStr
                         }
-                    })
+                    }),
+                    fetchOracleData(),
+                    swaps.fetchPools()
                 ]);
 
-            usdPrice = promise[0]?.data.market_data?.current_price?.usd;
-            allPools = promise[1].data.data.pools
+            usdPrice = promise[0]?.value?.data.market_data?.current_price?.usd;
+            allPools = promise[1]?.value?.data.data.pools
         }
         catch (error: any) {
-            return console.log(error.response.data)
+            return console.log(error.response.data);
         }
+        // console.log(allPools)
+        const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
 
         t1 = t1.toLowerCase();
         t2 = t2.toLowerCase();
 
-        console.log(usdPrice)
         if (!usdPrice) {
-            console.log("PAIR_NOT_AVAILABLE")
+            //checking if token is from synthex pool
+            const token = kind === SwapType.SwapExactIn ? t1 : t2
+            let flag = false;
+            for (const poolId of Object.keys(pools)) {
+
+                if (pools[poolId]["synths"][token]) {
+                    usdPrice = pools[poolId]["synths"][token]["priceUSD"];
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) return console.log("PAIR_NOT_AVAILABLE");
         }
+        console.log(usdPrice);
 
-        if (!allPools) {
-            return console.log("PLEAE_TRY_AGAIN");
-        }
+        if (!allPools) return console.log("PLEAE_TRY_AGAIN");
 
-        let graph = new Graph();
+        const graph = new Graph();
 
-        let queryInput: any = [];
+        const queryInput: any = [];
 
-        let AllTokens: string[][] = [];
+        const allTokens: string[][] = [];
 
-        let AllTokensData: any = [];
+        let tokenMap: TokenMap = {};
 
-        // let tokenMap:<string> = {};
+        for (const currPool of allPools) {
 
-        for (let currPool of allPools) {
+            if(currPool.id === "0xfb5e6d0c1dfed2ba000fbc040ab8df3615ac329c000000000000000000000159") {
+                console.log(currPool.tokens)
+            }
+            const poolId = currPool.id;
+            const currPooltokens: string[] = [];
 
-            let poolId = currPool.id;
-            let currPooltokens: string[] = [];
-            let currPooltokensData: any[][] = [];
-
-            for (let token of currPool.tokens) {
+            for (const token of currPool.tokens) {
 
                 if (!token.token?.latestUSDPrice) {
                     break;
                 }
                 currPooltokens.push(token.address);
-                currPooltokensData.push([token.symbol, token.token?.latestUSDPrice, token.decimals, poolId]);
-
+                tokenMap[token.address] = [token.symbol, token.token?.latestUSDPrice, token.decimals, poolId]
             }
 
-            AllTokens.push(currPooltokens);
-            AllTokensData.push(currPooltokensData);
+            allTokens.push([currPooltokens, poolId]);
 
-            for (let tokenIn of currPooltokens) {
+            for (const tokenIn of currPooltokens) {
 
-                let tokensExceptTokenIn = currPooltokens.filter((x) => x != tokenIn);
-                if (currPooltokens.length < 2 || !currPooltokensData[currPooltokens.indexOf(tokenIn)]) {
+                if (currPooltokens.length < 2 || !tokenMap[tokenIn]) {
                     continue;
                 }
 
-                for (let tokenOut of tokensExceptTokenIn) {
+                for (const tokenOut of currPooltokens) {
+
+                    if (tokenIn === tokenOut) {
+                        continue;
+                    }
 
                     let swapAmount = Big(amount).times(usdPrice)
-                        .times(10 ** currPooltokensData[currPooltokens.indexOf(tokenIn)][2])
-                        .div(currPooltokensData[currPooltokens.indexOf(tokenIn)][1])
+                        .times(10 ** tokenMap[tokenIn][2])
+                        .div(tokenMap[tokenIn][1])
                         .toFixed(0);
 
                     if (kind === SwapType.SwapExactOut) {
                         swapAmount = Big(amount).times(usdPrice)
-                            .times(10 ** currPooltokensData[currPooltokens.indexOf(tokenOut)][2])
-                            .div(currPooltokensData[currPooltokens.indexOf(tokenOut)][1])
+                            .times(10 ** tokenMap[tokenOut][2])
+                            .div(tokenMap[tokenOut][1])
                             .toFixed(0);
                     }
                     queryInput.push(swaps.queryBatchSwap(
@@ -276,27 +168,30 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
             }
         }
 
-        let queryRes: any = await Promise.allSettled(queryInput);
+        const queryRes: any = await Promise.allSettled(queryInput);
+        // console.log(allPools)
+        
+        let _count: number = 0;
 
-        let _count = 0;
+        for (const tokens of allTokens) {
 
-        for (let i in AllTokens) {
+            for (const tokenIn of tokens[0]) {
 
-            for (let tokenIn of AllTokens[i]) {
+                for (const tokenOut of tokens[0]) {
 
-                let tokensExceptTokenIn = AllTokens[i].filter((x: any) => x != tokenIn);
-
-                for (let tokenOut of tokensExceptTokenIn) {
+                    if (tokenIn === tokenOut) {
+                        continue;
+                    }
 
                     let swapAmount = Big(amount).times(usdPrice)
-                        .times(10 ** AllTokensData[i][AllTokens[i].indexOf(tokenIn)][2])
-                        .div(AllTokensData[i][AllTokens[i].indexOf(tokenIn)][1])
+                        .times(10 ** tokenMap[tokenIn][2])
+                        .div(tokenMap[tokenIn][1])
                         .toFixed(0);
 
                     if (kind === SwapType.SwapExactOut) {
                         swapAmount = Big(amount).times(usdPrice)
-                            .times(10 ** AllTokensData[i][AllTokens[i].indexOf(tokenOut)][2])
-                            .div(AllTokensData[i][AllTokens[i].indexOf(tokenOut)][1])
+                            .times(10 ** tokenMap[tokenOut][2])
+                            .div(tokenMap[tokenOut][1])
                             .toFixed(0);
                     }
 
@@ -305,30 +200,30 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                         continue;
                     }
 
-                    let res = queryRes[_count]["value"].sort((a: any, b: any) => Number(a) - Number(b));
+                    const res = queryRes[_count]["value"].sort((a: any, b: any) => Number(a) - Number(b));
 
                     _count++;
-                    
+                    // console.log(res)
                     let expectedAmount = Big(swapAmount)
-                        .div((10 ** AllTokensData[i][AllTokens[i].indexOf(tokenIn)][2]))
-                        .times(AllTokensData[i][AllTokens[i].indexOf(tokenIn)][1]).toNumber();
+                        .div((10 ** tokenMap[tokenIn][2]))
+                        .times(tokenMap[tokenIn][1]).toNumber();
 
                     let actualAmount = Big(Math.abs(Number(res[0])))
-                        .div(10 ** AllTokensData[i][AllTokens[i].indexOf(tokenOut)][2])
-                        .times(AllTokensData[i][AllTokens[i].indexOf(tokenOut)][1]).toNumber();
+                        .div(10 ** tokenMap[tokenOut][2])
+                        .times(tokenMap[tokenOut][1]).toNumber();
 
                     if (kind === SwapType.SwapExactOut) {
 
                         expectedAmount = Big(swapAmount)
-                            .div((10 ** AllTokensData[i][AllTokens[i].indexOf(tokenOut)][2]))
-                            .times(AllTokensData[i][AllTokens[i].indexOf(tokenOut)][1]).toNumber();
+                            .div((10 ** tokenMap[tokenOut][2]))
+                            .times(tokenMap[tokenOut][1]).toNumber();
 
                         actualAmount = Big(Math.abs(Number(res[res.length - 1])))
-                            .div(10 ** AllTokensData[i][AllTokens[i].indexOf(tokenIn)][2])
-                            .times(AllTokensData[i][AllTokens[i].indexOf(tokenIn)][1]).toNumber();
+                            .div(10 ** tokenMap[tokenIn][2])
+                            .times(tokenMap[tokenIn][1]).toNumber();
                     }
-                    // console.log(AllTokensData[i][AllTokens[i].indexOf(tokenIn)][0],
-                    //     AllTokensData[i][AllTokens[i].indexOf(tokenOut)][0]
+                    // console.log(tokenMap[tokenIn][0],
+                    //     tokenMap[tokenOut][0]
                     // )
                     // console.log(expectedAmount, "ES");
 
@@ -339,37 +234,94 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                     if (kind === SwapType.SwapExactOut) {
                         slipage = Big(actualAmount).minus(expectedAmount)
                             .toNumber();
+                        slipage = slipage > 0 ? slipage : 0;
                     }
 
                     // console.log("amount", swapAmount)
                     // console.log("slipage", slipage);
                     slipage = slipage > 0 ? slipage : 0;
-
+                    const amountIn = res[res.length - 1];
+                    const amountOut = Math.abs(res[0]).toString()
                     if (!slipage) slipage = 0;
                     graph.addVertex(tokenIn);
 
-                    graph.addEdge(tokenIn, tokenOut, slipage, AllTokensData[i][AllTokens[i].indexOf(tokenOut)][3], swapAmount);
+                    graph.addEdge(tokenIn, tokenOut, slipage, tokens[1], amountIn, amountOut, tokenMap[tokenIn][2], tokenMap[tokenOut][2]);
 
                 }
                 // console.log("===============");
-
             }
-
-
         }
 
-        let res = await graph.dijkstra(t1, t2);
+        for (let pool of balancerPoolBySynthex) {
 
-        if (!res || !res[t2] || res[t2]["slipage"] == Infinity) {
-            return console.log("no pair has found")
+            for (let tokenIn of pool.tokens) {
+
+                for (let tokenOut of pool.tokens) {
+                    if (tokenIn.address === tokenOut.address) {
+                        continue;
+                    }
+                    let slipage = pool.slipage
+                    graph.addVertex(tokenIn.address);
+                    graph.addEdge(tokenIn.address, tokenOut.address, slipage, pool.id, '0', '0', tokenIn.decimals, tokenOut.decimals)
+                }
+            }
         }
 
-        let outPut: any = [];
+        const poolIds = Object.keys(pools);
+
+        for (const poolId of poolIds) {
+
+            let synthTokens = Object.keys(pools[poolId]["synths"]);
+
+            for (const tokenIn of synthTokens) {
+
+                for (const tokenOut of synthTokens) {
+
+                    if (tokenIn === tokenOut) {
+                        continue;
+                    }
+
+                    const burnFee = Big(pools[poolId]["synths"][tokenIn]["burnFee"]).div(1e4).toNumber();
+                    const mintFee = Big(pools[poolId]["synths"][tokenOut]["mintFee"]).div(1e4).toNumber();
+                    const tokenInPriceUSD = pools[poolId]["synths"][tokenIn]["priceUSD"];
+                    const tokenOutPriceUSD = pools[poolId]["synths"][tokenOut]["priceUSD"];
+
+                    let slipage = Big(amount).times(usdPrice).times(burnFee)
+                        .plus(Big(amount).times(usdPrice).times(mintFee)).toNumber();
+
+                    let amountIn = Big(amount).times(usdPrice)
+                        .times(1e18).div(tokenInPriceUSD).toFixed(0);
+
+                    let amountOut = Big(Big(amount).times(usdPrice)).minus(slipage)
+                        .times(1e18).div(tokenOutPriceUSD).toFixed(0);
+
+                    graph.addVertex(tokenIn);
+
+                    if (kind === SwapType.SwapExactOut) {
+
+                        amountIn = Big(Big(amount).times(usdPrice)).plus(slipage)
+                            .times(1e18).div(tokenInPriceUSD).toFixed(0);
+
+                        amountOut = Big(amount).times(usdPrice)
+                            .times(1e18).div(tokenOutPriceUSD).toFixed(0);
+
+                    }
+                    graph.addEdge(tokenIn, tokenOut, slipage, poolId, amountIn, amountOut, 18, 18)
+                }
+            }
+        }
+
+        const res = await graph.dijkstra(t1, t2);
+
+        if (!res || !res[t2] || res[t2]["slipage"] == Infinity) return console.log("no pair has found");
+
+        const outPut: any = [];
+
         while (true) {
             let currAsset = t2
             outPut.push(res[currAsset])
-            if (res[currAsset]["asset"][0] != t1) {
-                t2 = res[currAsset]["asset"][0]
+            if (res[currAsset]["assets"]["assetIn"] != t1) {
+                t2 = res[currAsset]["assets"]["assetIn"]
             }
             else {
                 break;
@@ -385,3 +337,4 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
 
 
 }
+boil debate alcohol law sphere robot drop lounge drill stool lift dress
