@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 
 export const provider = new ethers.providers.JsonRpcProvider("https://nd-389-970-162.p2pify.com/17b0fbe8312c9ff963057d537b9c7864")
-export type TokenMap = { [key: string]: [string, string, number, string] };
+export type TokenMap = { [key: string]: [string, string, number] };
 export const balancerPoolBySynthex = [
     {
         id: '0x32df62dc3aed2cd6224193052ce665dc181658410002000000000000000003bc',
@@ -11,7 +11,7 @@ export const balancerPoolBySynthex = [
         poolType: 'Weighted',
         poolTypeVersion: 3,
         totalLiquidity: '1000000000',
-        slipage: 10,
+        slipage: 0.2,
         tokens: [
             {
                 address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
@@ -49,7 +49,7 @@ export const balancerPoolBySynthex = [
         poolType: 'Weighted',
         poolTypeVersion: 3,
         totalLiquidity: '10000000000',
-        slipage: 5,
+        slipage: 0.5,
         tokens: [
             {
                 address: '0x5979d7b546e38e414f7e9822514be443a4800529',

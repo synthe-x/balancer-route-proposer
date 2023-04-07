@@ -3,7 +3,10 @@ import { PriorityQueue } from "./pQueue";
 import { Queue } from "./queue";
 
 
-
+export enum PoolType {
+    balancer,
+    synthex
+}
 
 const pq = new PriorityQueue();
 // For non directed graph
@@ -24,9 +27,9 @@ export class Graph {
         }
     }
 
-    addEdge(asset: any, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, decimalIn: number, decimalOut: number) {
+    addEdge(asset: any, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, decimalIn: number, decimalOut: number, poolType: PoolType) {
         //this is adding edge asset to connectingToken
-        this.adList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, decimalIn, decimalOut});
+        this.adList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, decimalIn, decimalOut, poolType});
 
         //this is adding conToken target to Asset.
         // this.adList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
@@ -173,6 +176,8 @@ export class Graph {
                     dist[token.conToken]["decimalIn"] = token.decimalIn;
 
                     dist[token.conToken]["decimalOut"] = token.decimalOut;
+
+                    dist[token.conToken]["poolType"] = token.poolType;
 
                 }
 
