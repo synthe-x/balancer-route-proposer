@@ -1,34 +1,29 @@
 import { BalancerSDK, BalancerSdkConfig, Network, parseFixed, PoolFilter, PoolWithMethods, SOR, SwapType, TokenPriceProvider } from '@balancer-labs/sdk';
-import { parseEther } from 'ethers/lib/utils';
 import Big from 'big.js'
 import { Graph, PoolType } from '../graph/graph';
 import axios from 'axios';
-import { ethers } from 'ethers';
 import { queryStr } from '../helper/query';
 import { balancerPoolBySynthex, synthexPools, TokenMap } from '../helper/constant';
 import { fetchOracleData } from '../helper/getOracleDetails';
 import { promises as fs } from "fs";
 import path from "path";
 import { weightedPoolTokenInForTokenOut } from '../math/wieghtedPool';
-import { bnum } from '../utils/bigNumber';
+import {  bnum } from '../utils/bigNumber';
+
+import {  fp } from '../math/numbers';
+
+import {  calcOutGivenIn } from '../math/stablePool1';
+import { routeProposerHelper } from './handler/routeProposerHelper';
+
+// const config: BalancerSdkConfig = {
+//     network: Network.ARBITRUM,
+//     rpcUrl: "https://arb1.arbitrum.io/rpc"                             //"https://endpoints.omniatech.io/v1/arbitrum/one/public",
+// };
+// const balancer = new BalancerSDK(config);
 
 
-const config: BalancerSdkConfig = {
-    network: Network.ARBITRUM,
-    rpcUrl: "https://arb1.arbitrum.io/rpc"                             //"https://endpoints.omniatech.io/v1/arbitrum/one/public",
-};
-const balancer = new BalancerSDK(config);
 
-const { swaps } = balancer
-
-// setInterval(() => {
-//     swaps.fetchPools()
-//     // console.log("FETCH Pool working")
-// }, 10 * 1000)
-// 0x539bdE0d7Dbd336b79148AA742883198BBF60342   0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1  0x3082CC23568eA640225c2467653dB90e9250AaA0
-
-routeProposer("100", "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", "0x3082CC23568eA640225c2467653dB90e9250AaA0", 0);
-
+// routeProposer("100", "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", "0xdd206e7f12f2c15f935b8548d4c6c9e1235bb9c0", 0);
 
 export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType): Promise<any> {
     try {
@@ -43,17 +38,6 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
 
         let usdPrice: number;
         let allPools: any;
-        // await swaps.fetchPools()
-        // const route = await balancer.swaps.findRouteGivenIn({
-        //     tokenIn: t1,
-        //     tokenOut: t2,
-        //     // amount: parseEther("1"),
-        //     amount: ethers.BigNumber.from("100000000"),
-        //     gasPrice: parseFixed("1", 9),
-        //     maxPools: 3,
-        // });
-        // console.log(route)
-        //   return
 
         try {
 
@@ -69,17 +53,17 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                             query: queryStr
                         }
                     }),
-                    fetchOracleData(),
-                    swaps.fetchPools()
+                    fetchOracleData()
                 ]);
 
             usdPrice = promise[0]?.value?.data.market_data?.current_price?.usd;
             allPools = promise[1]?.value?.data.data.pools
+            
         }
         catch (error: any) {
             return console.log(error);
         }
-        // console.log(allPools)
+
         const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
 
         t1 = t1.toLowerCase();
@@ -101,33 +85,26 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         }
         console.log(usdPrice);
 
-        if (!allPools) return console.log("PLEAE_TRY_AGAIN");
+        if (!allPools) return console.log("PLEASE_TRY_AGAIN");
 
         const graph = new Graph();
 
-        const queryInput: any = [];
-
-        const allTokens: any = [];
-
         let tokenMap: TokenMap = {};
-        let count = 0;
+
         for (const currPool of allPools) {
 
             const poolId = currPool.id;
             const currPooltokens: any[] = [];
-            const currPoolTokensAdd: any = []
 
             for (const token of currPool.tokens) {
 
                 if (!token.token?.latestUSDPrice) {
                     break;
                 }
+
                 currPooltokens.push(token);
-                currPoolTokensAdd.push(token.address)
-                tokenMap[token.address] = [token.symbol, token.token?.latestUSDPrice, token.decimals]
+                tokenMap[token.address] = [token.symbol, token.token?.latestUSDPrice, token.decimals];
             }
-            count++
-            allTokens.push([currPooltokens, poolId]);
 
             for (const tokenIn of currPooltokens) {
 
@@ -152,23 +129,13 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                             .div(tokenMap[tokenOut.address][1])
                             .toFixed(0);
                     }
-                    // id: string;
-                    // address: string;
-                    // poolType: PoolTypes;
-                    // swapFee: BigNumber;
-                    // tokenIn: string;
-                    // tokenOut: string;
-                    // decimalsIn: number;
-                    // decimalsOut: number;
-                    // balanceIn: BigNumber;
-                    // balanceOut: BigNumber;
 
                     if (currPool.poolType === "Weighted") {
-                      console.log(tokenIn, tokenOut)
-                       let w =  weightedPoolTokenInForTokenOut((swapAmount),
+
+                        let tokenOutAMount = weightedPoolTokenInForTokenOut((swapAmount),
                             {
                                 balanceIn: bnum(tokenIn.balance),
-                                balanceOut:bnum( tokenOut.balance),
+                                balanceOut: bnum(tokenOut.balance),
                                 decimalsIn: bnum(tokenIn.decimals),
                                 decimalsOut: bnum(tokenOut.decimals),
                                 weightIn: bnum(tokenIn.weight),
@@ -176,127 +143,100 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                                 swapFee: bnum(currPool.swapFee)
                             });
 
-                            console.log("weighted",w.toString(),count )
+                        let actualAmount = Big(tokenOutAMount).times(tokenMap[tokenOut.address][1]).toFixed(18);
+
+                        let expectedAmount = Big(swapAmount)
+                            .div((10 ** tokenMap[tokenIn.address][2]))
+                            .times(tokenMap[tokenIn.address][1]).toFixed(18);
+
+                        let slipage = Big(expectedAmount).minus(actualAmount).toNumber();
+                        // console.log(tokenIn.address)
+                        // console.log(tokenOut.address)
+                        // console.log(poolId)
+                        // console.log("Slipage", slipage)
+                        slipage = slipage > 0 ? slipage : 0;
+
+                        const amountInTokenDecimal = swapAmount.toString();
+
+                        const amountOutTokenDecimal = Big(tokenOutAMount).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
+
+                        if (!slipage) slipage = 0;
+
+                        graph.addVertex(tokenIn.address);
+
+                        graph.addEdge(tokenIn.address, tokenOut.address, slipage, poolId, amountInTokenDecimal, amountOutTokenDecimal, tokenMap[tokenIn.address][2], tokenMap[tokenOut.address][2], PoolType.balancer);
+
+
                     }
-                    queryInput.push(swaps.queryBatchSwap(
-                        {
-                            swaps: [
-                                {
-                                    poolId: poolId,
-                                    assetInIndex: currPoolTokensAdd.indexOf(tokenIn.address),
-                                    assetOutIndex: currPoolTokensAdd.indexOf(tokenOut.address),
-                                    amount: swapAmount,
-                                    userData: "0x"
-                                }],
-                            assets: currPoolTokensAdd,
-                            kind: kind,
-                        },
-                    ));
+                    if (currPool.poolType === "Stable") {
+
+                        let tokens: string[] = [];
+                        let allBalances: any[] = [];
+
+                        for (const currToken of currPooltokens) {
+                            tokens.push(currToken.address);
+                            allBalances.push(fp(currToken.balance));
+                        }
+
+                        let amountIn = Big(amount).times(usdPrice)
+                            .div(tokenMap[tokenIn.address][1])
+                            .toFixed(18);
+
+                        let amountInAfterFee = fp(Big(amountIn).minus(Big(amountIn).times(currPool.swapFee)).toFixed(18))
+
+                        let tokenOutAmount = Big(
+                            calcOutGivenIn(
+                                allBalances, (currPool.amp), tokens.indexOf(tokenIn.address), tokens.indexOf(tokenOut.address), amountInAfterFee
+                            )
+                                .toString())
+                            .div(1e18).toFixed(18);
+
+                        let expectedAmount = Big(amountIn).times(tokenMap[tokenIn.address][1]).toFixed(18);
+
+                        let actualAmount = Big(tokenOutAmount.toString()).times(tokenMap[tokenOut.address][1]).toFixed(18);
+
+                        let slipage = Big(expectedAmount).minus(actualAmount).toNumber();
+
+                        const amountInTokenDecimal = swapAmount;
+
+                        const amountOutTokenDecimal = Big(tokenOutAmount).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
+                        // console.log(tokenIn.address)
+                        // console.log(tokenOut.address)
+                        // console.log(poolId)
+                        // console.log("Slipage", slipage)
+                        slipage = slipage > 0 ? slipage : 0;
+
+                        graph.addVertex(tokenIn.address);
+
+                        graph.addEdge(tokenIn.address, tokenOut.address, slipage, poolId, amountInTokenDecimal, amountOutTokenDecimal, tokenMap[tokenIn.address][2], tokenMap[tokenOut.address][2], PoolType.balancer);
+
+
+                    }
+
+                    // console.log('===================================')
                 }
             }
         }
 
-        const queryRes: any = await Promise.allSettled(queryInput);
-        // console.log(allPools)
 
-        let _count: number = 0;
 
-        for (const tokens of allTokens) {
+        for (let pool of balancerPoolBySynthex) {
 
-            for (const tokenIn of tokens[0]) {
+            for (let tokenIn of pool.tokens) {
 
-                for (const tokenOut of tokens[0]) {
-
+                for (let tokenOut of pool.tokens) {
                     if (tokenIn.address === tokenOut.address) {
                         continue;
                     }
-
-                    let swapAmount = Big(amount).times(usdPrice)
-                        .times(10 ** tokenMap[tokenIn.address][2])
-                        .div(tokenMap[tokenIn.address][1])
-                        .toFixed(0);
-
-                    if (kind === SwapType.SwapExactOut) {
-                        swapAmount = Big(amount).times(usdPrice)
-                            .times(10 ** tokenMap[tokenOut.address][2])
-                            .div(tokenMap[tokenOut.address][1])
-                            .toFixed(0);
-                    }
-
-                    if (queryRes[_count]["status"] != "fulfilled") {
-                        _count++;
-                        continue;
-                    }
-
-                    const res = queryRes[_count]["value"].sort((a: any, b: any) => Number(a) - Number(b));
-
-                    _count++;
-                    console.log(res)
-                    let expectedAmount = Big(swapAmount)
-                        .div((10 ** tokenMap[tokenIn.address][2]))
-                        .times(tokenMap[tokenIn.address][1]).toNumber();
-
-                    let actualAmount = Big(Math.abs(Number(res[0])))
-                        .div(10 ** tokenMap[tokenOut.address][2])
-                        .times(tokenMap[tokenOut.address][1]).toNumber();
-
-                    if (kind === SwapType.SwapExactOut) {
-
-                        expectedAmount = Big(swapAmount)
-                            .div((10 ** tokenMap[tokenOut.address][2]))
-                            .times(tokenMap[tokenOut.address][1]).toNumber();
-
-                        actualAmount = Big(Math.abs(Number(res[res.length - 1])))
-                            .div(10 ** tokenMap[tokenIn.address][2])
-                            .times(tokenMap[tokenIn.address][1]).toNumber();
-                    }
-                    // console.log(tokenMap[tokenIn][0],
-                    //     tokenMap[tokenOut][0]
-                    // )
-                    // console.log(expectedAmount, "ES");
-
-                    // console.log(actualAmount, "AS")
-                    let slipage = Big(expectedAmount).minus(actualAmount)
-                        .toNumber();
-
-                    if (kind === SwapType.SwapExactOut) {
-                        slipage = Big(actualAmount).minus(expectedAmount)
-                            .toNumber();
-                        slipage = slipage > 0 ? slipage : 0;
-                    }
-
-                    // console.log("amount", swapAmount)
-                    // console.log("slipage", slipage);
-                    slipage = slipage > 0 ? slipage : 0;
-                    const amountIn = res[res.length - 1];
-                    const amountOut = Math.abs(res[0]).toString()
-                    if (!slipage) slipage = 0;
+                    let slipage = pool.slipage
                     graph.addVertex(tokenIn.address);
-
-                    graph.addEdge(tokenIn.address, tokenOut.address, slipage, tokens[1], amountIn, amountOut, tokenMap[tokenIn.address][2], tokenMap[tokenOut.address][2], PoolType.balancer);
-
+                    graph.addEdge(tokenIn.address, tokenOut.address, slipage, pool.id, '0', '0', tokenIn.decimals, tokenOut.decimals, PoolType.balancer)
                 }
-                // console.log("===============");
             }
         }
 
-        // for (let pool of balancerPoolBySynthex) {
-
-        //     for (let tokenIn of pool.tokens) {
-
-        //         for (let tokenOut of pool.tokens) {
-        //             if (tokenIn.address === tokenOut.address) {
-        //                 continue;
-        //             }
-        //             let slipage = pool.slipage
-        //             graph.addVertex(tokenIn.address);
-        //             graph.addEdge(tokenIn.address, tokenOut.address, slipage, pool.id, '0', '0', tokenIn.decimals, tokenOut.decimals, PoolType.balancer)
-        //         }
-        //     }
-        // }
-
         const poolIds = Object.keys(pools);
-
+        // handleSynthexPool(amount, usdPrice, poolIds, pools, graph);
         for (const poolId of poolIds) {
 
             let synthTokens = Object.keys(pools[poolId]["synths"]);
@@ -314,6 +254,10 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                     const tokenInPriceUSD = pools[poolId]["synths"][tokenIn]["priceUSD"];
                     const tokenOutPriceUSD = pools[poolId]["synths"][tokenOut]["priceUSD"];
 
+                    if(!tokenMap[tokenIn]) {
+                        tokenMap[tokenIn] = [pools[poolId]["synths"][tokenIn]["symbol"], tokenInPriceUSD, 18];
+                    }
+                   
                     let slipage = Big(amount).times(usdPrice).times(burnFee)
                         .plus(Big(amount).times(usdPrice).times(mintFee)).toNumber();
 
@@ -339,7 +283,7 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
             }
         }
 
-        const res = await graph.dijkstra(t1, t2);
+        const res = graph.dijkstra(t1, t2);
 
         if (!res || !res[t2] || res[t2]["slipage"] == Infinity) return console.log("no pair has found");
 
@@ -355,48 +299,50 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
                 break;
             }
         }
+
         outPut.reverse();
-        const swapInput = [];
-        const assets: string[] = [];
-        const assetsMap: any = {}
+
+        return  routeProposerHelper(outPut, tokenMap, amount)
+      /*  const swapInput = [];
+        let assets: string[][] = [];
+        let assetsMap: any = {}
         let swapData: any = [];
         let synData: any = [];
         let swapAmount = "0";
         let swapCount = 0;
         let index = 0;
+        let tokensDetails = [];
+        let asset: string[] = []
         for (let i in outPut) {
 
             if (outPut[i].poolType === PoolType.balancer) {
 
                 if (synData.length > 0 && +i !== outPut.length - 1) {
                     swapInput.push(synData);
+                    assets.push([]);
+                    tokensDetails.push({});
                     synData = [];
                 }
 
                 if (!assetsMap[outPut[i].assets.assetIn]) {
                     assetsMap[outPut[i].assets.assetIn] = index.toString();
-                    assets.push(outPut[i].assets.assetIn);
+                    asset.push(outPut[i].assets.assetIn);
                     index++;
                 }
 
                 if (!assetsMap[outPut[i].assets.assetOut]) {
                     assetsMap[outPut[i].assets.assetOut] = index.toString();
-                    assets.push(outPut[i].assets.assetOut)
+                    asset.push(outPut[i].assets.assetOut)
                     index++;
                 }
 
                 if (kind === SwapType.SwapExactIn) {
                     if (swapCount === 0) {
-                        swapAmount = Big(amount).times(10 ** (tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18)).toString();
+                        // swapAmount = Big(amount).times(10 ** (tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18)).toString();
+                        swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18).toString()
                         swapCount = 1;
                     }
                 }
-
-                // else if(kind === SwapType.SwapExactOut){
-                //     if(+i === outPut.length - 1) {
-                //         swapAmount = Big(amount).times(10** tokenMap[t2][2]).toString()
-                //     }
-                // }
 
                 swapData.push(
                     {
@@ -413,7 +359,18 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
 
                 if (swapData.length > 0 && +i !== outPut.length - 1) {
                     swapInput.push(swapData);
+                    assets.push(asset);
+                    tokensDetails.push(
+                        {
+                            priceInUSD: tokenMap[asset[0]][1],
+                            priceOutUSD: tokenMap[asset.length - 1][1],
+                            decimalsIn: tokenMap[asset[0]][2],
+                            decimalsOut: tokenMap[asset.length - 1][2]
+                        }
+                    )
                     swapData = [];
+                    asset = [];
+                    assetsMap = {};
                     swapCount = 0;
                 }
                 synData.push({
@@ -425,15 +382,32 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
             }
 
             if (+i === outPut.length - 1) {
-                if (swapData.length > 0) swapInput.push(swapData);
-                if (synData.length > 0) swapInput.push(synData);
+                if (swapData.length > 0) {
+                    swapInput.push(swapData);
+                    assets.push(asset);
+                    tokensDetails.push(
+                        {
+                            priceInUSD: tokenMap[asset[0]][1],
+                            priceOutUSD: tokenMap[asset[asset.length - 1]][1],
+                            decimalsIn: tokenMap[asset[0]][2],
+                            decimalsOut: tokenMap[asset[asset.length - 1]][2]
+                        }
+                    )
+                }
+                if (synData.length > 0) {
+                    swapInput.push(synData);
+                    assets.push([]);
+                    tokensDetails.push({});
+                }
             }
         }
-        console.log(outPut)
+        console.log(outPut);
 
+        // console.log(tokensDetails)
         // console.log(swapInput);
-        // console.log(assets)
-        return { swapInput, assets }
+        // console.log(assets);
+        // console.log({ swapInput, assets, tokensDetails })
+        return { swapInput, assets, tokensDetails }*/
     } catch (error) {
         console.log(error)
     }

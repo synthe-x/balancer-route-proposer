@@ -16,7 +16,7 @@ async function _oracleMulticall(input: any) {
     try {
 
         const multicall = new ethers.Contract(
-            "0x7a69be2c6827F45A6A4eE94b7D1Ed8484d17fcb8",
+            "0x842eC2c7D803033Edf55E478F461FC547Bc54EB2",
             await getABI("Multicall2"),
             provider
         );
@@ -54,7 +54,7 @@ async function _oracleMulticall(input: any) {
         return null
     }
 }
-
+fetchOracleData()
 export async function fetchOracleData() {
     try {
         const config = JSON.parse((await fs.readFile(path.join(__dirname + "/synthexPoolConfig.json"))).toString());

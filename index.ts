@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { routeProposer } from './src/sor';
 import {Graph} from './src/graph/graph'
 import{fetchOracleData} from './src/helper/getOracleDetails'
+import {swapMaker} from "./src/sor/swapMaker"
 const app = express();
 
 const httpServer = createServer(app);
@@ -16,7 +17,8 @@ let server = httpServer.listen(3010, function () {
 // a("1")
 // routeProposer("100", "0x4e352cF164E64ADCBad318C3a1e222E9EBa4Ce42", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 0);
 // fetchOracleData()
-routeProposer("100", "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", "0x3082CC23568eA640225c2467653dB90e9250AaA0", 0);
+// routeProposer("10", "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", 0);
+swapMaker("100", "0x6694340fc020c5E6B96567843da2df01b2CE1eb6", "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", 0);
 function stop() {
     server.close();
 }
