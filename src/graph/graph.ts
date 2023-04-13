@@ -4,8 +4,9 @@ import { Queue } from "./queue";
 
 
 export enum PoolType {
-    balancer,
-    synthex
+    Synthex,
+    Weighted,
+    Stable  
 }
 
 const pq = new PriorityQueue();
@@ -27,9 +28,9 @@ export class Graph {
         }
     }
 
-    addEdge(asset: any, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, decimalIn: number, decimalOut: number, poolType: PoolType) {
+    addEdge(asset: any, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, poolType: PoolType, parameters: any, swapFee: string) {
         //this is adding edge asset to connectingToken
-        this.adList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, decimalIn, decimalOut, poolType});
+        this.adList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, poolType, parameters, swapFee});
 
         //this is adding conToken target to Asset.
         // this.adList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
@@ -173,11 +174,15 @@ export class Graph {
 
                     dist[token.conToken]["amountOut"] = token.amountOut;
 
-                    dist[token.conToken]["decimalIn"] = token.decimalIn;
+                    // dist[token.conToken]["decimalIn"] = token.decimalIn;
 
-                    dist[token.conToken]["decimalOut"] = token.decimalOut;
+                    // dist[token.conToken]["decimalOut"] = token.decimalOut;
 
                     dist[token.conToken]["poolType"] = token.poolType;
+
+                    dist[token.conToken]["parameters"] = token.parameters;
+
+                    dist[token.conToken]["swapFee"] = token.swapFee;
 
                 }
 

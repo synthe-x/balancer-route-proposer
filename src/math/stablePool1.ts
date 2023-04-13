@@ -7,7 +7,7 @@ import { BigNumberish, decimal, bn, fp, fromFp, toFp } from './numbers';
 
 
 
-export function calcOutGivenIn(
+export function stablePoolcalcOutGivenIn(
     fpBalances: BigNumberish[],
     amplificationParameter: BigNumberish,
     tokenIndexIn: number,
@@ -31,7 +31,7 @@ export function calcOutGivenIn(
 
 
 
-export function calcInGivenOut(
+export function stablePoolcalcInGivenOut(
     fpBalances: BigNumberish[],
     amplificationParameter: BigNumberish,
     tokenIndexIn: number,
@@ -41,7 +41,7 @@ export function calcInGivenOut(
     const invariant = fromFp(calculateInvariant(fpBalances, amplificationParameter));
 
     const balances = fpBalances.map(fromFp);
-    console.log("Blances",balances)
+   
 
     balances[tokenIndexOut] = balances[tokenIndexOut].sub(fromFp(fpTokenAmountOut));
 

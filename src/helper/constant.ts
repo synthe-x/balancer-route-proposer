@@ -23,7 +23,7 @@ export const balancerPoolBySynthex = [
                 }
             },
             {
-                address: '0x317b23dc91ad1d00658548134a84e58dac538972',
+                address: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
                 symbol: 'cUSD',
                 decimals: 18,
                 token: {
@@ -32,7 +32,7 @@ export const balancerPoolBySynthex = [
                 }
             },
             {
-                address: '0x863c90913db6674099ddcd95f535037e5f4d5710',
+                address: '0x50e73618a59a317ae51cb704d7bb078900dcb6b4',
                 symbol: 'fUSD',
                 decimals: 18,
                 token: {
@@ -90,7 +90,7 @@ export const balancerPoolBySynthex = [
                 }
             },
             {
-                address: '0x2f1654f45325e6115e5e2197f3d34c9151a484ab',
+                address: '0xe43a1234ed7715fcf8410ca8bd5aea3b720771fa',
                 symbol: 'cETH',
                 decimals: 18,
                 token: {
@@ -108,15 +108,15 @@ export const balancerPoolBySynthex = [
 export const synthexPools = [
     {
 
-        id: '0x0bf7e7fb631457bbc0e3a3abc94a50364d9f11e1',
+        id: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
         name: 'Crypto Market',
-        address: '0x0bf7e7fb631457bbc0e3a3abc94a50364d9f11e1',
+        address: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
         poolType: 'Weighted',
         poolTypeVersion: 3,
         totalLiquidity: '100000000000',
         tokens: [
             {
-                address: '0x317b23dc91ad1d00658548134a84e58dac538972',
+                address: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
                 symbol: 'cUSD',
                 decimals: 18,
                 token: {
@@ -125,7 +125,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x2f1654f45325e6115e5e2197f3d34c9151a484ab',
+                address: '0xe43a1234ed7715fcf8410ca8bd5aea3b720771fa',
                 symbol: 'cETH',
                 decimals: 18,
                 token: {
@@ -134,7 +134,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x59470445a7c0667c39838e4fcfb8a23a3b58687f',
+                address: '0x5841360012d9d7ad0ddc15e9ff65a734a9bbac62',
                 symbol: 'cBTC',
                 decimals: 18,
                 token: {
@@ -143,7 +143,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0xdd206e7f12f2c15f935b8548d4c6c9e1235bb9c0',
+                address: '0x80703c6120cbc5fdc9d1971dbc43e06d1d0be0d7',
                 symbol: 'cLINK',
                 decimals: 18,
                 token: {
@@ -152,7 +152,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x8186ae4492b7122c2f61f8eba306fba541a9271d',
+                address: '0x586f0cd6529d29304b1bc779556ae772ea32fea1',
                 symbol: 'cBNB',
                 decimals: 18,
                 token: {
@@ -165,15 +165,15 @@ export const synthexPools = [
     },
     {
 
-        id: '0xc859343104ac0aff202ddec654d76885a44664b9',
+        id: '0x0113e1920540fa9547389d02e7e79f60b4d4f503',
         name: 'Foreign Exchange',
-        address: '0xc859343104ac0aff202ddec654d76885a44664b9',
+        address: '0x0113e1920540fa9547389d02e7e79f60b4d4f503',
         poolType: 'Weighted',
         poolTypeVersion: 3,
         totalLiquidity: '100000000000',
         tokens: [
             {
-                address: '0x863c90913db6674099ddcd95f535037e5f4d5710',
+                address: '0x50e73618a59a317ae51cb704d7bb078900dcb6b4',
                 symbol: 'fUSD',
                 decimals: 18,
                 token: {
@@ -182,7 +182,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x129e4fb310b50ef8787a3f43011145d0509f0463',
+                address: '0x4ae1c78cc903d93eae767cad2603d44437a1c34e',
                 symbol: 'fSGD',
                 decimals: 18,
                 token: {
@@ -191,7 +191,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x233642677783b8796770c25761e92918d0f0b3d6',
+                address: '0x6bc3457948e0eebe99b2423f00dcad779260ef91',
                 symbol: 'fGBP',
                 decimals: 18,
                 token: {
@@ -200,7 +200,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0x6038818260487edbbf0e55da8a31c53a35182c80',
+                address: '0x5f3b1bf1f8c67c3a6336a542232a2525ec3770c6',
                 symbol: 'fJPY',
                 decimals: 18,
                 token: {
@@ -209,7 +209,7 @@ export const synthexPools = [
                 }
             },
             {
-                address: '0xcc8fcd494876e6f9e2320f963c943fc0bed3d9d6',
+                address: '0xefb005eca8c9c606a7b7566ee80d6ae463abd792',
                 symbol: 'fEUR',
                 decimals: 18,
                 token: {

@@ -1,21 +1,24 @@
 import { SwapType } from "@balancer-labs/sdk";
 import { parseFixed } from "@ethersproject/bignumber";
 import { PoolType } from "../../graph/graph";
+import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
 
 
 
 
 
-export function routeProposerHelper(outPut: any, tokenMap: any, amount: string, kind: SwapType, t1: string, t2 : string) {
+
+
+export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
     try {
 
-        const swapInput = [];
+        let swapInput = [];
         let assets: string[][] = [];
         let assetsMap: any = {}
         let swapData: any = [];
         let synData: any = [];
-        let swapAmount = "0";
-        let swapCount = 0;
+        // let swapAmount = "0";
+        // let swapCount = 0;
         let index = 0;
         let tokensDetails = [];
         let asset: string[] = []
@@ -43,17 +46,17 @@ export function routeProposerHelper(outPut: any, tokenMap: any, amount: string, 
                 }
 
               
-                if (swapCount === 0) {
+                // if (swapCount === 0) {
                     
-                    // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18).toString()
-                    swapAmount = parseFixed(amount, tokenMap[t1][2] ?? 18).toString()
-                    if(kind === SwapType.SwapExactOut) {
-                        // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetOut"]] ? tokenMap[outPut[i]["assets"]["assetOut"]][2] : 18).toString()
-                        swapAmount = parseFixed(amount, tokenMap[t2][2] ?? 18).toString()
-                        console.log("t2", t2, swapAmount)
-                    }
-                    swapCount = 1;
-                }
+                //     // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18).toString()
+                //     swapAmount = parseFixed(amount, tokenMap[t1][2] ?? 18).toString()
+                //     if(kind === SwapType.SwapExactOut) {
+                //         // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetOut"]] ? tokenMap[outPut[i]["assets"]["assetOut"]][2] : 18).toString()
+                //         swapAmount = parseFixed(amount, tokenMap[t2][2] ?? 18).toString()
+                //         console.log("t2", t2, swapAmount)
+                //     }
+                //     swapCount = 1;
+                // }
                
 
                 swapData.push(
@@ -61,11 +64,16 @@ export function routeProposerHelper(outPut: any, tokenMap: any, amount: string, 
                         poolId: outPut[i].pool,
                         assetInIndex: assetsMap[outPut[i].assets.assetIn],
                         assetOutIndex: assetsMap[outPut[i].assets.assetOut],
-                        amount: swapAmount,
-                        userData: "0x"
+                        amountIn: outPut[i].amountIn,
+                        amountOut:outPut[i].amountOut,
+                        parameters: outPut[i].parameters,
+                        swapFee: outPut[i].swapFee,
+                        userData: "0x",
+                        poolType: outPut[i].poolType,
+                        assets: outPut[i].assets
                     }
                 )
-                swapAmount = "0";
+                // swapAmount = "0";
             }
             else {
 
@@ -83,7 +91,7 @@ export function routeProposerHelper(outPut: any, tokenMap: any, amount: string, 
                     swapData = [];
                     asset = [];
                     assetsMap = {};
-                    swapCount = 0;
+                    // swapCount = 0;
                 }
                 synData.push({
                     poolId: outPut[i].pool,
@@ -114,8 +122,10 @@ export function routeProposerHelper(outPut: any, tokenMap: any, amount: string, 
                 }
             }
         }
+        // console.log("routeSep", swapInput, assets)
 
-        return { swapInput, assets, tokensDetails }
+        swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap)
+        return { swapInput, assets, tokenMap}
     }
     catch (error) {
         console.log("Error @ routeProposerHelper", error)
