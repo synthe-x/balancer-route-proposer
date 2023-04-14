@@ -57,6 +57,8 @@ async function _oracleMulticall(input: any) {
 fetchOracleData()
 export async function fetchOracleData() {
     try {
+
+        
         const config = JSON.parse((await fs.readFile(path.join(__dirname + "/synthexPoolConfig.json"))).toString());
         // setInterval(async () => {
 

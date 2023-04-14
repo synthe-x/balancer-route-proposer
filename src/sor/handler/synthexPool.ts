@@ -106,7 +106,8 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                             .times(1e18).div(tokenOutPriceUSD).toFixed(0);
 
                     }
-                    graph.addEdge(tokenIn, tokenOut, slipageUSD, poolId, amountIn, amountOut, PoolType.Synthex ,[], "0")
+                    const parameters = {burnFee, mintFee}
+                    graph.addEdge(tokenIn, tokenOut, slipageUSD, poolId, amountIn, amountOut, PoolType.Synthex ,parameters, "0")
                 }
             }
         }

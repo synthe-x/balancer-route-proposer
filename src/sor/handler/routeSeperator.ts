@@ -17,20 +17,17 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
         let assetsMap: any = {}
         let swapData: any = [];
         let synData: any = [];
-        // let swapAmount = "0";
-        // let swapCount = 0;
         let index = 0;
-        let tokensDetails = [];
         let asset: string[] = []
         for (let i in outPut) {
 
             if (outPut[i].poolType !== PoolType.Synthex) {
 
-                if (synData.length > 0 && +i !== outPut.length - 1) {
+                if (synData.length > 0) {
                     swapInput.push(synData);
                     assets.push([]);
-                    tokensDetails.push({});
                     synData = [];
+                    index = 0;
                 }
 
                 if (!assetsMap[outPut[i].assets.assetIn]) {
@@ -45,27 +42,13 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                     index++;
                 }
 
-              
-                // if (swapCount === 0) {
-                    
-                //     // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetIn"]] ? tokenMap[outPut[i]["assets"]["assetIn"]][2] : 18).toString()
-                //     swapAmount = parseFixed(amount, tokenMap[t1][2] ?? 18).toString()
-                //     if(kind === SwapType.SwapExactOut) {
-                //         // swapAmount = parseFixed(amount, tokenMap[outPut[i]["assets"]["assetOut"]] ? tokenMap[outPut[i]["assets"]["assetOut"]][2] : 18).toString()
-                //         swapAmount = parseFixed(amount, tokenMap[t2][2] ?? 18).toString()
-                //         console.log("t2", t2, swapAmount)
-                //     }
-                //     swapCount = 1;
-                // }
-               
-
                 swapData.push(
                     {
                         poolId: outPut[i].pool,
                         assetInIndex: assetsMap[outPut[i].assets.assetIn],
                         assetOutIndex: assetsMap[outPut[i].assets.assetOut],
                         amountIn: outPut[i].amountIn,
-                        amountOut:outPut[i].amountOut,
+                        amountOut: outPut[i].amountOut,
                         parameters: outPut[i].parameters,
                         swapFee: outPut[i].swapFee,
                         userData: "0x",
@@ -73,32 +56,26 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                         assets: outPut[i].assets
                     }
                 )
-                // swapAmount = "0";
+
             }
             else {
 
-                if (swapData.length > 0 && +i !== outPut.length - 1) {
+                if (swapData.length > 0) {
                     swapInput.push(swapData);
                     assets.push(asset);
-                    tokensDetails.push(
-                        {
-                            priceInUSD: tokenMap[asset[0]][1],
-                            priceOutUSD: tokenMap[asset.length - 1][1],
-                            decimalsIn: tokenMap[asset[0]][2],
-                            decimalsOut: tokenMap[asset.length - 1][2]
-                        }
-                    )
                     swapData = [];
                     asset = [];
                     assetsMap = {};
-                    // swapCount = 0;
+                    index = 0;
                 }
                 synData.push({
                     poolId: outPut[i].pool,
                     assets: outPut[i].assets,
-                    amoountIn: outPut[i].amountIn,
+                    amountIn: outPut[i].amountIn,
                     amountOut: outPut[i].amountOut,
-                    slipage: outPut[i].slipage
+                    slipage: outPut[i].slipage,
+                    parameters: outPut[i].parameters,
+                    poolType: outPut[i].poolType
                 })
             }
 
@@ -106,26 +83,17 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                 if (swapData.length > 0) {
                     swapInput.push(swapData);
                     assets.push(asset);
-                    tokensDetails.push(
-                        {
-                            priceInUSD: tokenMap[asset[0]][1],
-                            priceOutUSD: tokenMap[asset[asset.length - 1]][1],
-                            decimalsIn: tokenMap[asset[0]][2],
-                            decimalsOut: tokenMap[asset[asset.length - 1]][2]
-                        }
-                    )
                 }
                 if (synData.length > 0) {
                     swapInput.push(synData);
                     assets.push([]);
-                    tokensDetails.push({});
                 }
             }
         }
         // console.log("routeSep", swapInput, assets)
-
+       
         swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap)
-        return { swapInput, assets, tokenMap}
+        return { swapInput, assets, tokenMap }
     }
     catch (error) {
         console.log("Error @ routeProposerHelper", error)

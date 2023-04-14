@@ -149,7 +149,7 @@ export class Graph {
             pq.dequeue()
 
             let sourceAdj = this.adList.get(newSource);
-
+            console.log("source ADJ======>", sourceAdj)
             sourceAdj = sourceAdj.sort((a: any, b: any) => {
                 return a.slipage - b.slipage
             });

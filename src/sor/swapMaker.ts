@@ -15,7 +15,6 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
         let swap = [];
         let synthex = [];
         let j = 0;
-        let slipage = Big(0);
         for (let swapArr of proposeRoute.swapInput) { 
 
             if (swapArr[0].poolId.length > 42) {
@@ -60,17 +59,17 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
             }
 
             else {
-                console.log("Going in synthex Pool");
-
-                for (let i in swapArr) {
-                    slipage = Big(slipage).plus(swapArr[i].slipage);
-                }
+              
+                // for (let i in swapArr) {
+                //     slipage = Big(slipage).plus(swapArr[i].slipage);
+                // }
                 swap.push(swapArr);
             }
             j++;
         }
-        console.log(swap[0].swapInput, slipage.toString())
+        console.log(swap)
         // console.log({swap, slipage: slipage.toString()})
+
         return { swap }
     }
     catch (error: any) {

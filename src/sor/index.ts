@@ -3,7 +3,7 @@ import Big from 'big.js'
 import { Graph, PoolType } from '../graph/graph';
 import axios from 'axios';
 import { queryStr } from '../helper/query';
-import { balancerPoolBySynthex, synthexPools, TokenMap } from '../helper/constant';
+import { balancerPoolBySynthex, TokenMap } from '../helper/constant';
 import { fetchOracleData } from '../helper/getOracleDetails';
 import { promises as fs } from "fs";
 import path from "path";
@@ -36,31 +36,6 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
 
         let usdPrice: number = getTokenPrice(kind == SwapType.SwapExactIn ? t1 : t2);
         let allPools: any = getPools()
-
-        try {
-
-            // let arbitrum = "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2"
-            // const promise: any = await Promise.allSettled(
-            //     [
-            //         axios.get(`https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/${kind == SwapType.SwapExactIn ? t1 : t2}`),
-            //         axios({
-            //             method: "post",
-            //             url: arbitrum,
-            //             data:
-            //             {
-            //                 query: queryStr
-            //             }
-            //         }),
-            //         fetchOracleData()
-            //     ]);
-
-            // usdPrice = promise[0]?.value?.data.market_data?.current_price?.usd;
-            // allPools = promise[1]?.value?.data.data.pools
-
-        }
-        catch (error: any) {
-            return console.log(error);
-        }
 
         const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
 
@@ -127,32 +102,30 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
             }
         }
 
-
-
-        /* for (let pool of balancerPoolBySynthex) {
- 
-             for (let tokenIn of pool.tokens) {
- 
-                 for (let tokenOut of pool.tokens) {
-                     if (tokenIn.address === tokenOut.address) {
-                         continue;
-                     }
-                     let slipage = pool.slipage
-                     graph.addVertex(tokenIn.address);
-                     graph.addEdge(tokenIn.address, tokenOut.address, slipage, pool.id, '0', '0', tokenIn.decimals, tokenOut.decimals, PoolType.balancer)
-                 }
-             }
-         }*/
-
         const poolIds = Object.keys(pools);
-        
+
         tokenMap = handleSynthexPool(poolIds, pools, amount, usdPrice, tokenMap, kind, graph);
+
+
+        for (let pool of balancerPoolBySynthex) {
+
+            for (let tokenIn of pool.tokens) {
+
+                for (let tokenOut of pool.tokens) {
+                    if (tokenIn.address === tokenOut.address) {
+                        continue;
+                    }
+                    handleWeightedPool(pool, amount, usdPrice, kind, tokenMap, tokenIn, tokenOut, graph);
+                }
+            }
+        }
 
         const res = graph.dijkstra(t1, t2);
 
-        if (!res || !res[t2] || res[t2]["slipage"] == Infinity) return console.log("no pair has found");
+        if (!res || !res[t2] || res[t2]["slipage"] == Infinity) return console.log("PAIR_NOT_FOUND");
 
         const outPut: any = [];
+
         let sourceAsset = t2
         while (true) {
             let currAsset = sourceAsset
@@ -166,7 +139,7 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         }
 
         outPut.reverse();
-        
+
         console.log(outPut);
         return routeSeperator(outPut, tokenMap, kind)
     } catch (error) {

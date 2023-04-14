@@ -12,14 +12,31 @@ import { weightedPoolTokenInForExactTokenOut, weightedPoolTokenInForTokenOut } f
 export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, tokenMap: any) {
     try {
         const updatedOutput: any = [];
-        let j = 0;
-        
+        if (kind === SwapType.SwapExactOut) {
+            output.reverse();
+        }
+
         for (let pools of output) {
-           
-        
+
+
             if (pools[0].poolType !== PoolType.Synthex) {
 
+                if (updatedOutput.length > 0) {
+                    const l = updatedOutput.length - 1;
+                    const lastArr = updatedOutput[l]
+
+                    if (kind === SwapType.SwapExactOut) {
+                        // pools[0].amountIn = lastArr[lastArr.length - 1]["amountOut"];
+                        pools[0].amountOut = lastArr[lastArr.length - 1]["amountIn"];
+                    }
+                    else if (kind === SwapType.SwapExactIn) {
+                        pools[0].amountIn = lastArr[lastArr.length - 1]["amountOut"];
+
+                    }
+                }
+
                 if (kind === SwapType.SwapExactIn) {
+
 
                     let amountIn: string = pools[0].amountIn;
                     let amountOut: string = pools[0].amountIn;
@@ -42,9 +59,10 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
                         }
                         else if (pools[i].poolType === PoolType.Weighted) {
+
                             const amount = amountOut;
 
-                            pools[i].parameters[0] = amount
+                            pools[i].parameters[0] = amount;
 
                             amountOut = Big(weightedPoolTokenInForTokenOut(...pools[i].parameters as [string, any]).toString()).times(10 ** pools[i].parameters[1]["decimalsOut"]).toFixed(0)
 
@@ -61,15 +79,16 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                         }
 
                     }
-                    updatedOutput.push(pools)
+
                     pools.push({
                         amountIn, amountOut
                     });
+                    updatedOutput.push(pools);
 
                 }
 
                 else if (kind === SwapType.SwapExactOut) {
-                    // assets[j].reverse();
+
                     pools.reverse();
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
@@ -122,12 +141,70 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
 
             }
-            j++
-        
+            else if (pools[0].poolType === PoolType.Synthex) {
+
+                if (updatedOutput.length > 0) {
+                    const l = updatedOutput.length - 1;
+                    const lastArr = updatedOutput[l]
+                    if (kind === SwapType.SwapExactOut) {
+                        // pools[0].amountIn = lastArr[lastArr.length - 1]["amountIn"];
+                        pools[0].amountOut = lastArr[lastArr.length - 1]["amountIn"];
+                    }
+                    else if (kind === SwapType.SwapExactIn) {
+                        pools[0].amountIn = lastArr[lastArr.length - 1]["amountOut"];
+                        // pools[0].amountOut = lastArr[lastArr.length - 1]["amountOut"];
+                    }
+
+                }
+
+                if (kind === SwapType.SwapExactIn) {
+
+                    let amountIn: string = pools[0].amountIn;
+                    let amountOut: string = pools[0].amountIn;
+
+                    for (let i in pools) {
+                        const amountUSD = Big(amountOut).times(tokenMap[pools[i]['assets']['assetIn']][1]).div(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(18);
+
+                        const slipageUSD = Big(amountUSD).times(pools[i].parameters.burnFee).plus(Big(amountUSD).times((pools[i].parameters.mintFee))).toFixed(18);
+
+                        amountOut = Big(Big(amountUSD).minus(slipageUSD)).div(tokenMap[pools[i]['assets']['assetOut']][1]).times(1e18).toFixed(0);
+                        delete pools[i]["poolType"];
+                        delete pools[i]["parameters"];
+                        pools[i].amountIn = amountIn;
+                        pools[i].amountOut = amountOut;
+                        pools[i].slipage = slipageUSD;
+                    }
+                    updatedOutput.push(pools)
+                }
+                else if (kind === SwapType.SwapExactOut) {
+                    let amountIn: string = pools[0].amountOut;
+                    let amountOut: string = pools[0].amountOut;
+
+                    for (let i in pools) {
+
+                        const amountUSD = Big(amountIn).times(tokenMap[pools[i]['assets']['assetOut']][1]).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
+
+                        const slipageUSD = Big(amountUSD).times(pools[i].parameters.burnFee).plus(Big(amountUSD).times((pools[i].parameters.mintFee))).toFixed(18);
+
+                        amountIn = Big(Big(amountUSD).plus(slipageUSD)).div(tokenMap[pools[i]['assets']['assetIn']][1]).times(1e18).toFixed(0);
+                        delete pools[i]["poolType"];
+                        delete pools[i]["parameters"];
+                        pools[i].amountIn = amountIn;
+                        pools[i].amountOut = amountOut;
+                        pools[i].slipage = slipageUSD;
+                    }
+                    updatedOutput.push(pools)
+
+                }
+
+            }
+
         }
 
-        // console.log("calc", updatedOutput);
-
+        console.log("calc", updatedOutput);
+        if (kind === SwapType.SwapExactOut) {
+            updatedOutput.reverse()
+        }
         return updatedOutput
 
     }

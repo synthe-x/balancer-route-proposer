@@ -31,7 +31,7 @@ export function handleStablePool(currPool: any, currPooltokens: any, kind: SwapT
             let parameters: [BigNumberish[], BigNumberish, number, number, BigNumberish] = [allBalances, (currPool.amp), tokens.indexOf(tokenIn.address), tokens.indexOf(tokenOut.address), amountInAfterFee]
 
             let tokenOutAmount = Big(stablePoolcalcOutGivenIn(...parameters).toString()).div(1e18).toFixed(18);
-            
+            console.log("TOKENOUT+++=", tokenOutAmount.toString())
             let expectedAmountUSD = Big(amountIn).times(tokenMap[tokenIn.address][1]).toFixed(18);
 
             let actualAmountUSD = Big(tokenOutAmount.toString()).times(tokenMap[tokenOut.address][1]).toFixed(18);
@@ -62,7 +62,7 @@ export function handleStablePool(currPool: any, currPooltokens: any, kind: SwapT
             let parameters: [BigNumberish[], BigNumberish, number, number, BigNumberish] = [allBalances, (currPool.amp), tokens.indexOf(tokenIn.address), tokens.indexOf(tokenOut.address), fp(amountOut)]
 
             let amountIn = Big(stablePoolcalcInGivenOut(...parameters).toString()).div(1e18).toFixed(18);
-
+            console.log("TOKENOUT+++=", amountIn.toString())
             const expectedAmountUSD = Big(amountOut).times(tokenMap[tokenOut.address][1]).toFixed(18);
 
             const amountInAfterFee = Big(amountIn).plus(Big(amountIn).times(currPool.swapFee)).toFixed(18);
