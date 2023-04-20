@@ -9,7 +9,7 @@ import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
 
 
 
-export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
+export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipage: number) {
     try {
 
         let swapInput = [];
@@ -23,12 +23,12 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
 
             if (outPut[i].poolType !== PoolType.Synthex) {
 
-                if (synData.length > 0) {
-                    swapInput.push(synData);
-                    assets.push([]);
-                    synData = [];
-                    index = 0;
-                }
+                // if (synData.length > 0) {
+                //     swapInput.push(synData);
+                //     assets.push([]);
+                //     synData = [];
+                //     index = 0;
+                // }
 
                 if (!assetsMap[outPut[i].assets.assetIn]) {
                     assetsMap[outPut[i].assets.assetIn] = index.toString();
@@ -50,10 +50,11 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                         amountIn: outPut[i].amountIn,
                         amountOut: outPut[i].amountOut,
                         parameters: outPut[i].parameters,
-                        swapFee: outPut[i].swapFee,
                         userData: "0x",
+                        assets: outPut[i].assets,
+                        // isBalancerPool: true,
                         poolType: outPut[i].poolType,
-                        assets: outPut[i].assets
+                        swapFee: outPut[i].swapFee,
                     }
                 )
 
@@ -67,16 +68,26 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                     asset = [];
                     assetsMap = {};
                     index = 0;
-                }
+                };
+
                 synData.push({
                     poolId: outPut[i].pool,
-                    assets: outPut[i].assets,
+                    assetInIndex: 0,
+                    assetOutIndex: 1,
                     amountIn: outPut[i].amountIn,
                     amountOut: outPut[i].amountOut,
-                    slipage: outPut[i].slipage,
                     parameters: outPut[i].parameters,
-                    poolType: outPut[i].poolType
-                })
+                    userData: "0x",
+                    assets: outPut[i].assets,
+                    // isBalancerPool: false,
+                    poolType: outPut[i].poolType,
+                    slipage: outPut[i].slipage,
+                });
+
+                swapInput.push(synData);
+                assets.push([outPut[i].assets.assetIn, outPut[i].assets.assetOut]);
+                synData = [];
+                index = 0;
             }
 
             if (+i === outPut.length - 1) {
@@ -84,15 +95,14 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType) {
                     swapInput.push(swapData);
                     assets.push(asset);
                 }
-                if (synData.length > 0) {
-                    swapInput.push(synData);
-                    assets.push([]);
-                }
+                // if (synData.length > 0) {
+                //     swapInput.push(synData);
+                //     assets.push([]);
+                // }
             }
         }
-        // console.log("routeSep", swapInput, assets)
-       
-        swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap)
+
+        swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap, slipage)
         return { swapInput, assets, tokenMap }
     }
     catch (error) {

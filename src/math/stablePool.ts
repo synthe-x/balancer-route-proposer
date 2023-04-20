@@ -1,164 +1,143 @@
 
 
-// import {
-//     BigNumber as OldBigNumber,
-//     bnum,
-//     ZERO,
-//     ONE,
-// } from '../utils/bigNumber';
-// import { WeiPerEther as EONE } from '@ethersproject/constants';
-// import { BigNumber, formatFixed } from '@ethersproject/bignumber';
+import { Decimal } from 'decimal.js';
+import { BigNumber } from 'ethers';
 
-// export function stablePoolexactTokenInForTokenOut(
-//     amount: OldBigNumber,
-//     poolPairData: any
-// ): OldBigNumber {
-//     // The formula below returns some dust (due to rounding errors) but when
-//     // we input zero the output should be zero
-//     if (amount.isZero()) return amount;
-//     let { amp, allBalances, tokenIndexIn, tokenIndexOut, swapFee }: {
-//         amp: BigNumber, allBalances: OldBigNumber[], tokenIndexIn: number, tokenIndexOut: number, swapFee: OldBigNumber
-//     } =
-//         poolPairData;
-//     const balances = [...allBalances];
-//     let tokenAmountIn = amount;
-
-//     tokenAmountIn = tokenAmountIn.minus(tokenAmountIn.times(swapFee))
-//     // tokenAmountIn = tokenAmountIn
-//     //     .times(bnum("1000000000000000000").minus(swapFee))
-//     //     .div(bnum("1000000000000000000"));
-    
-//     // tokenAmountIn = tokenAmountIn
-//     // .times(EONE.sub(swapFee).toString())
-//     // .div(EONE.toString());
-
-//     console.log("tokenIn ------", tokenAmountIn.toString())
-
-//     //Invariant is rounded up
-//     const inv = _invariant(amp, balances);
-//     let p = inv;
-//     let sum = ZERO;
-//     const totalCoins = bnum(balances.length);
-//     let n_pow_n = ONE;
-//     let x = ZERO;
-//     for (let i = 0; i < balances.length; i++) {
-//         n_pow_n = n_pow_n.times(totalCoins);
-
-//         if (i == tokenIndexIn) {
-//             x = balances[i].plus(tokenAmountIn);
-//         } else if (i != tokenIndexOut) {
-//             x = balances[i];
-//         } else {
-//             continue;
-//         }
-//         sum = sum.plus(x);
-//         //Round up p
-//         p = p.times(inv).div(x);
-//     }
-
-//     //Calculate out balance
-//     // console.log(sum.toString(), inv.toString(), amp.toString(), n_pow_n.toString(), p.toString())
-//     const y = _solveAnalyticalBalance(sum, inv, amp, n_pow_n, p);
-
-//     //Result is rounded down
-//     // return balances[tokenIndexOut] > y ? balances[tokenIndexOut].minus(y) : 0;
-//     return balances[tokenIndexOut].minus(y);
-// }
-
-
-// export function _solveAnalyticalBalance(
-//     sum: OldBigNumber,
-//     inv: OldBigNumber,
-//     amp: BigNumber,
-//     n_pow_n: OldBigNumber,
-//     p: OldBigNumber
-// ): OldBigNumber {
-//     // amp is passed as an ethers bignumber while maths uses bignumber.js
-//     // const oldBN_amp = bnum(amp.div(1000).toString());
-//     const oldBN_amp = bnum(amp.toString());
-//     //Round up p
-//     p = p.times(inv).div(oldBN_amp.times(n_pow_n).times(n_pow_n));
-//     //Round down b
-//     const b = sum.plus(inv.div(oldBN_amp.times(n_pow_n)));
-//     //Round up c
-//     // let c = inv >= b
-//     //     ? inv.minus(b).plus(Math.sqrtUp(inv.minus(b).times(inv.minus(b)).plus(p.times(4))))
-//     //     : Math.sqrtUp(b.minus(inv).times(b.minus(inv)).plus(p.times(4))).minus(b.minus(inv));
-//     let c;
-//     if (inv.gte(b)) {
-//         c = inv
-//             .minus(b)
-//             .plus(inv.minus(b).times(inv.minus(b)).plus(p.times(4)).sqrt());
-//     } else {
-//         c = b
-//             .minus(inv)
-//             .times(b.minus(inv))
-//             .plus(p.times(4))
-//             .sqrt()
-//             .minus(b.minus(inv));
-//     }
-//     //Round up y
-//     return c.div(2);
-// }
+import { BigNumberish, decimal, bn, fp, fromFp, toFp } from './numbers';
 
 
 
-// /**********************************************************************************************
-//     // invariant                                                                                 //
-//     // D = invariant to compute                                                                  //
-//     // A = amplifier                n * D^2 + A * n^n * S * (n^n * P / D^(n−1))                  //
-//     // S = sum of balances         ____________________________________________                  //
-//     // P = product of balances    (n+1) * D + ( A * n^n − 1)* (n^n * P / D^(n−1))                //
-//     // n = number of tokens                                                                      //
-//     **********************************************************************************************/
-// export function _invariant(
-//     amp: BigNumber, // amp
-//     balances: OldBigNumber[] // balances
-// ): OldBigNumber {
-//     let sum = ZERO;
-//     const totalCoins = balances.length;
-//     for (let i = 0; i < totalCoins; i++) {
-//         sum = sum.plus(balances[i]);
-//     }
-//     if (sum.isZero()) {
-//         return ZERO;
-//     }
-//     let prevInv = ZERO;
-//     let inv = sum;
+export function stablePoolcalcOutGivenIn(
+    fpBalances: BigNumberish[],
+    amplificationParameter: BigNumberish,
+    tokenIndexIn: number,
+    tokenIndexOut: number,
+    fpTokenAmountIn: BigNumberish
+  ): Decimal {
+    const invariant = fromFp(calculateInvariant(fpBalances, amplificationParameter));
+  
+    const balances = fpBalances.map(fromFp);
+    balances[tokenIndexIn] = balances[tokenIndexIn].add(fromFp(fpTokenAmountIn));
+  
+    const finalBalanceOut = _getTokenBalanceGivenInvariantAndAllOtherBalances(
+      balances,
+      decimal(amplificationParameter),
+      invariant,
+      tokenIndexOut
+    );
+  
+    return toFp(balances[tokenIndexOut].sub(finalBalanceOut));
+  }
 
-//     // amp is passed as an ethers bignumber while maths uses bignumber.js
-//     // const ampAdjusted = bnum(formatFixed(amp, 3))
-//     // const ampAdjusted =bnum(amp.div(1000).toString());
-//     const ampAdjusted =bnum(amp.toString());
-//     const ampTimesNpowN = ampAdjusted.times(totalCoins ** totalCoins); // A*n^n
-//     // const ampTimesNpowN = ampAdjusted.times(totalCoins); // A*n^n
 
-//     for (let i = 0; i < 255; i++) {
-//         let P_D = bnum(totalCoins).times(balances[0]);
-//         for (let j = 1; j < totalCoins; j++) {
-//             //P_D is rounded up
-//             P_D = P_D.times(balances[j]).times(totalCoins).div(inv);
-//         }
-//         prevInv = inv;
-//         //inv is rounded up
-//         inv = bnum(totalCoins)
-//             .times(inv)
-//             .times(inv)
-//             .plus(ampTimesNpowN.times(sum).times(P_D))
-//             .div(
-//                 bnum(totalCoins + 1)
-//                     .times(inv)
-//                     .plus(ampTimesNpowN.minus(1).times(P_D))
-//             );
-//         // Equality with the precision of 1
-//         if (inv.gt(prevInv)) {
-//             if (inv.minus(prevInv).lt(bnum(10 ** -18))) {
-//                 break;
-//             }
-//         } else if (prevInv.minus(inv).lt(bnum(10 ** -18))) {
-//             break;
-//         }
-//     }
-//     //Result is rounded up
-//     return inv;
-// }
+
+export function stablePoolcalcInGivenOut(
+    fpBalances: BigNumberish[],
+    amplificationParameter: BigNumberish,
+    tokenIndexIn: number,
+    tokenIndexOut: number,
+    fpTokenAmountOut: BigNumberish
+): Decimal {
+    const invariant = fromFp(calculateInvariant(fpBalances, amplificationParameter));
+
+    const balances = fpBalances.map(fromFp);
+   
+
+    balances[tokenIndexOut] = balances[tokenIndexOut].sub(fromFp(fpTokenAmountOut));
+
+    const finalBalanceIn = _getTokenBalanceGivenInvariantAndAllOtherBalances(
+        balances,
+        decimal(amplificationParameter),
+        invariant,
+        tokenIndexIn
+    );
+
+    return toFp(finalBalanceIn.sub(balances[tokenIndexIn]));
+}
+
+
+export function calculateInvariant(fpRawBalances: BigNumberish[], amplificationParameter: BigNumberish): BigNumber {
+    return calculateApproxInvariant(fpRawBalances, amplificationParameter);
+}
+
+export function calculateApproxInvariant(
+    fpRawBalances: BigNumberish[],
+    amplificationParameter: BigNumberish
+): BigNumber {
+    const totalCoins = fpRawBalances.length;
+    const balances = fpRawBalances.map(fromFp);
+
+    const sum = balances.reduce((a, b) => a.add(b), decimal(0));
+
+    if (sum.isZero()) {
+        return bn(0);
+    }
+
+    let inv = sum;
+    let prevInv = decimal(0);
+    const ampTimesTotal = decimal(amplificationParameter).mul(totalCoins);
+
+    for (let i = 0; i < 255; i++) {
+        let P_D = balances[0].mul(totalCoins);
+        for (let j = 1; j < totalCoins; j++) {
+            P_D = P_D.mul(balances[j]).mul(totalCoins).div(inv);
+        }
+
+        prevInv = inv;
+        inv = decimal(totalCoins)
+            .mul(inv)
+            .mul(inv)
+            .add(ampTimesTotal.mul(sum).mul(P_D))
+            .div(decimal(totalCoins).add(1).mul(inv).add(ampTimesTotal.sub(1).mul(P_D)));
+
+        // converge with precision of integer 1
+        if (inv.gt(prevInv)) {
+            if (fp(inv).sub(fp(prevInv)).lte(1)) {
+                break;
+            }
+        } else if (fp(prevInv).sub(fp(inv)).lte(1)) {
+            break;
+        }
+    }
+
+    return fp(inv);
+}
+
+
+function _getTokenBalanceGivenInvariantAndAllOtherBalances(
+    balances: Decimal[],
+    amplificationParameter: Decimal | BigNumberish,
+    invariant: Decimal,
+    tokenIndex: number
+): Decimal {
+    let sum = decimal(0);
+    let mul = decimal(1);
+    const numTokens = balances.length;
+
+    for (let i = 0; i < numTokens; i++) {
+        if (i != tokenIndex) {
+            sum = sum.add(balances[i]);
+            mul = mul.mul(balances[i]);
+        }
+    }
+
+    // const a = 1;
+    amplificationParameter = decimal(amplificationParameter);
+    const b = invariant.div(amplificationParameter.mul(numTokens)).add(sum).sub(invariant);
+    const c = invariant
+        .pow(numTokens + 1)
+        .mul(-1)
+        .div(
+            amplificationParameter.mul(
+                decimal(numTokens)
+                    .pow(numTokens + 1)
+                    .mul(mul)
+            )
+        );
+
+    return b
+        .mul(-1)
+        .add(b.pow(2).sub(c.mul(4)).squareRoot())
+        .div(2);
+}
+

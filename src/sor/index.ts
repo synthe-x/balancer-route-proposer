@@ -7,7 +7,6 @@ import { balancerPoolBySynthex, TokenMap } from '../helper/constant';
 import { fetchOracleData } from '../helper/getOracleDetails';
 import { promises as fs } from "fs";
 import path from "path";
-import { routeProposerHelper } from './handler/routeProposerHelper';
 import { handleWeightedPool } from './handler/weightedPool';
 import { handleStablePool } from './handler/stablePool';
 import { handleSynthexPool } from './handler/synthexPool';
@@ -20,7 +19,7 @@ import { routeSeperator } from './handler/routeSeperator';
 // 0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709
 // routeProposer("1", "0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 1);
 
-export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType): Promise<any> {
+export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType, slipage: number): Promise<any> {
     try {
 
         if (isNaN(Number(amount)) || Number(amount) < 0) {
@@ -38,8 +37,6 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         let allPools: any = getPools()
 
         const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
-
-
 
         if (!usdPrice) {
             //checking if token is from synthex pool
@@ -141,7 +138,7 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         outPut.reverse();
 
         console.log(outPut);
-        return routeSeperator(outPut, tokenMap, kind)
+        return routeSeperator(outPut, tokenMap, kind, slipage)
     } catch (error) {
         console.log(error)
     }

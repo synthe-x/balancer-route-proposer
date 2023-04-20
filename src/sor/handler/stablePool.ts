@@ -2,7 +2,7 @@ import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
 import { Graph, PoolType } from "../../graph/graph";
 import { BigNumberish, fp } from "../../math/numbers";
-import {  stablePoolcalcInGivenOut, stablePoolcalcOutGivenIn } from "../../math/stablePool1";
+import { stablePoolcalcInGivenOut, stablePoolcalcOutGivenIn } from "../../math/stablePool";
 
 
 

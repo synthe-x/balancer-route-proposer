@@ -17,11 +17,11 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
 
         if (kind === SwapType.SwapExactIn) {
 
-            const swapAmount = Big(amount).times(usdPrice)
+            const tokenInAmount = Big(amount).times(usdPrice)
                 .times(10 ** tokenMap[tokenIn.address][2])
                 .div(tokenMap[tokenIn.address][1])
                 .toFixed(0);
-            let parameters: [string, any] = [(swapAmount),
+            let parameters: [string, any] = [(tokenInAmount),
             {
                 balanceIn: bnum(tokenIn.balance),
                 balanceOut: bnum(tokenOut.balance),
@@ -31,14 +31,15 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
                 weightOut: bnum(tokenOut.weight),
                 swapFee: bnum(currPool.swapFee)
             }]
-            const tokenOutAMount = weightedPoolTokenInForTokenOut(...parameters);
+            const tokenOutAmount = weightedPoolTokenInForTokenOut(...parameters);
             
-            if(isNaN(Number(tokenOutAMount)) || Number(tokenOutAMount) < 0) {
+            if(isNaN(Number(tokenOutAmount)) || Number(tokenOutAmount) < 0) {
                 return
             }
-            const actualAmountUSD = Big(tokenOutAMount.toString()).times(tokenMap[tokenOut.address][1]).toFixed(18);
+            console.log("TOKENOUT__________",tokenOutAmount.toString(), currPool.id, tokenIn.address,  tokenOut.address);
+            const actualAmountUSD = Big(tokenOutAmount.toString()).times(tokenMap[tokenOut.address][1]).toFixed(18);
 
-            const expectedAmountUSD = Big(swapAmount)
+            const expectedAmountUSD = Big(tokenInAmount)
                 .div((10 ** tokenMap[tokenIn.address][2]))
                 .times(tokenMap[tokenIn.address][1]).toFixed(18);
 
@@ -51,9 +52,9 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
             // console.log("Slipage", slipageUSD)
             slipageUSD = slipageUSD > 0 ? slipageUSD : 0;
 
-            const amountInTokenDecimal = Big(swapAmount).toFixed(0);
+            const amountInTokenDecimal = Big(tokenInAmount).toFixed(0);
 
-            const amountOutTokenDecimal = Big(tokenOutAMount.toString()).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
+            const amountOutTokenDecimal = Big(tokenOutAmount.toString()).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
            
             if (!slipageUSD) slipageUSD = 0;
 
@@ -63,13 +64,13 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
         }
 
         else if (kind === SwapType.SwapExactOut) {
-            const swapAmount = Big(amount).times(usdPrice)
+            const tokenOutAmount = Big(amount).times(usdPrice)
                 .times(10 ** tokenMap[tokenOut.address][2])
                 .div(tokenMap[tokenOut.address][1])
                 .toFixed(0);
 
             const parameters: [string, any] = [
-                (swapAmount),
+                (tokenOutAmount),
                 {
                     balanceIn: bnum(tokenIn.balance),
                     balanceOut: bnum(tokenOut.balance),
@@ -80,16 +81,17 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
                     swapFee: bnum(currPool.swapFee)
                 }
             ]
-            const tokenOutAMount = weightedPoolTokenInForExactTokenOut(...parameters);
-            if(isNaN(Number(tokenOutAMount)) || Number(tokenOutAMount) < 0) {
+            const tokenInAmount = weightedPoolTokenInForExactTokenOut(...parameters);
+            if(isNaN(Number(tokenInAmount)) || Number(tokenInAmount) < 0) {
                 return
             }
-            const actualAmountUSD = Big(tokenOutAMount.toString()).times(tokenMap[tokenIn.address][1]).toFixed(18);
+            console.log("TOKENIN__________",tokenInAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
+            const actualAmountUSD = Big(tokenInAmount.toString()).times(tokenMap[tokenIn.address][1]).toFixed(18);
 
-            const expectedAmountUSD = Big(swapAmount)
+            const expectedAmountUSD = Big(tokenOutAmount)
                 .div((10 ** tokenMap[tokenOut.address][2]))
                 .times(tokenMap[tokenOut.address][1]).toFixed(18);
-
+            console.log("actual", actualAmountUSD, "exp", expectedAmountUSD)
             let slipageUSD = Big(actualAmountUSD).minus(expectedAmountUSD).toNumber();
             // console.log("EP", expectedAmount);
             // console.log("AA", actualAmount.toString())
@@ -100,9 +102,9 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
 
             slipageUSD = slipageUSD > 0 ? slipageUSD : 0;
 
-            const amountInTokenDecimal = Big(tokenOutAMount.toString()).times(10 ** tokenMap[tokenIn.address][2]).toFixed(0);
+            const amountInTokenDecimal = Big(tokenInAmount.toString()).times(10 ** tokenMap[tokenIn.address][2]).toFixed(0);
 
-            const amountOutTokenDecimal = Big(swapAmount).toFixed(0);
+            const amountOutTokenDecimal = Big(tokenOutAmount).toFixed(0);
 
             if (!slipageUSD) slipageUSD = 0;
 
