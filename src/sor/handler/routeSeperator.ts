@@ -9,7 +9,7 @@ import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
 
 
 
-export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipage: number) {
+export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number) {
     try {
 
         let swapInput = [];
@@ -101,7 +101,7 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipa
                 // }
             }
         }
-
+        
         swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap, slipage)
         return { swapInput, assets, tokenMap }
     }

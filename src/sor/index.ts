@@ -19,7 +19,7 @@ import { routeSeperator } from './handler/routeSeperator';
 // 0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709
 // routeProposer("1", "0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 1);
 
-export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType, slipage: number): Promise<any> {
+export async function routeProposer(amount: any, t1: string, t2: string, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number): Promise<any> {
     try {
 
         if (isNaN(Number(amount)) || Number(amount) < 0) {
@@ -138,7 +138,7 @@ export async function routeProposer(amount: any, t1: string, t2: string, kind: S
         outPut.reverse();
 
         console.log(outPut);
-        return routeSeperator(outPut, tokenMap, kind, slipage)
+        return routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
     } catch (error) {
         console.log(error)
     }

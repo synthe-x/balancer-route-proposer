@@ -8,6 +8,8 @@ import { ethers } from "ethers";
 
 export function handleSynthexPool(poolIds: string[], pools: any, amount: string, usdPrice: number, tokenMap: any, kind: SwapType, graph: Graph) {
     try {
+        const synthDecimals = 18;
+        const basePoints = 10000;
         for (let poolId of poolIds) {
 
             const synthTokens = Object.keys(pools[poolId]["synths"]);
@@ -20,16 +22,16 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                         continue;
                     }
 
-                    const burnFee = Big(pools[poolId]["synths"][tokenIn]["burnFee"]).div(1e4).toNumber();
-                    const mintFee = Big(pools[poolId]["synths"][tokenOut]["mintFee"]).div(1e4).toNumber();
+                    const burnFee = Big(pools[poolId]["synths"][tokenIn]["burnFee"]).div(basePoints).toNumber();
+                    const mintFee = Big(pools[poolId]["synths"][tokenOut]["mintFee"]).div(basePoints).toNumber();
                     const tokenInPriceUSD = pools[poolId]["synths"][tokenIn]["priceUSD"];
                     const tokenOutPriceUSD = pools[poolId]["synths"][tokenOut]["priceUSD"];
 
                     if (!tokenMap[tokenIn]) {
-                        tokenMap[tokenIn] = [pools[poolId]["synths"][tokenIn]["symbol"], tokenInPriceUSD, 18];
+                        tokenMap[tokenIn] = [pools[poolId]["synths"][tokenIn]["symbol"], tokenInPriceUSD, synthDecimals];
                     }
                     if (!tokenMap[tokenOut]) {
-                        tokenMap[tokenOut] = [pools[poolId]["synths"][tokenOut]["symbol"], tokenOutPriceUSD, 18];
+                        tokenMap[tokenOut] = [pools[poolId]["synths"][tokenOut]["symbol"], tokenOutPriceUSD, synthDecimals];
                     }
 
                     let slipageUSD = Big(amount).times(usdPrice).times(burnFee)
@@ -56,7 +58,8 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                     const parameters = { burnFee, mintFee }
 
                     let currPoolId = poolId+"000000000000000000000000";
-
+                    // console.log(+amountIn/1e18, +amountOut/1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
+                    // console.log("                       ");
                     graph.addEdge(tokenIn, tokenOut, slipageUSD, currPoolId, amountIn, amountOut, PoolType.Synthex, parameters, "0")
                 }
             }

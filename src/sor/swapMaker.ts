@@ -71,21 +71,62 @@ import { routeProposer } from ".";
 //         console.log(`Error @ swapMaker`, error)
 //     }
 // }
-export async function swapMaker(amount: string, t1: string, t2: string, kind: SwapType, slipage: number) {
+export async function swapMaker(amount: string, t1: string, t2: string, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number) {
     try {
 
-        let proposeRoute = await routeProposer(amount, t1, t2, kind, slipage);
+        let proposeRoute = await routeProposer(amount, t1, t2, kind, slipage, sender, recipient, deadline);
 
         proposeRoute.swapInput.forEach((swapEle: any, index: number) => {
 
-            // swapEle.swap.pop();
+            swapEle.swap.pop();
             swapEle.assets = proposeRoute.assets[index];
+            const newLimits = Array(swapEle.assets.length).fill(0);
+            swapEle.swap.forEach((swap: any, index: number) => {
+
+                if (kind === SwapType.SwapExactIn) {
+
+                    if (index === 0) {
+                        newLimits[swap.assetInIndex] = swapEle.limits[0];
+                    }
+                    else {
+                        newLimits[swap.assetInIndex] = 0;
+                    }
+                    if (index === swapEle.swap.length - 1) {
+                        newLimits[swap.assetOutIndex] = swapEle.limits[1];
+                    }
+                }
+                else if (kind === SwapType.SwapExactOut) {
+                    
+                    if (index === 0) {
+                        newLimits[swap.assetOutIndex] = swapEle.limits[1];
+                    }
+                    else {
+                        newLimits[swap.assetInIndex] = 0;
+                    }
+                    if (index === swapEle.swap.length - 1) {
+                        newLimits[swap.assetInIndex] = swapEle.limits[0];
+                    }
+                }
+
+            });
+
+            swapEle.limits = newLimits;
 
         });
 
         console.log(proposeRoute.swapInput)
-
-        return { swaps: proposeRoute.swapInput }
+        const data = {
+            kind: SwapType.SwapExactIn,
+            swaps: proposeRoute.swapInput,
+            deadline: deadline,
+            funds: {
+                sender: sender,
+                recipient: recipient,
+                fromInternalBalance: false,
+                toInternalBalance: false
+            }
+        }
+        return data;
     }
     catch (error: any) {
         console.log(`Error @ swapMaker`, error)

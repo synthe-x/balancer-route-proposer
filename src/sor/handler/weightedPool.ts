@@ -32,11 +32,11 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
                 swapFee: bnum(currPool.swapFee)
             }]
             const tokenOutAmount = weightedPoolTokenInForTokenOut(...parameters);
-            
-            if(isNaN(Number(tokenOutAmount)) || Number(tokenOutAmount) < 0) {
+
+            if (isNaN(Number(tokenOutAmount)) || Number(tokenOutAmount) < 0) {
                 return
             }
-            console.log("TOKENOUT__________",tokenOutAmount.toString(), currPool.id, tokenIn.address,  tokenOut.address);
+
             const actualAmountUSD = Big(tokenOutAmount.toString()).times(tokenMap[tokenOut.address][1]).toFixed(18);
 
             const expectedAmountUSD = Big(tokenInAmount)
@@ -44,6 +44,8 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
                 .times(tokenMap[tokenIn.address][1]).toFixed(18);
 
             let slipageUSD = Big(expectedAmountUSD).minus(actualAmountUSD).toNumber();
+            // console.log("TOKENOUT__________", slipageUSD, tokenOutAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
+            // console.log('                             ')
             // console.log("EP", expectedAmountUSD);
             // console.log("AA", actualAmountUSD.toString())
             // console.log(tokenIn.address)
@@ -55,7 +57,7 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
             const amountInTokenDecimal = Big(tokenInAmount).toFixed(0);
 
             const amountOutTokenDecimal = Big(tokenOutAmount.toString()).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
-           
+
             if (!slipageUSD) slipageUSD = 0;
 
             graph.addVertex(tokenIn.address);
@@ -82,16 +84,16 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
                 }
             ]
             const tokenInAmount = weightedPoolTokenInForExactTokenOut(...parameters);
-            if(isNaN(Number(tokenInAmount)) || Number(tokenInAmount) < 0) {
+            if (isNaN(Number(tokenInAmount)) || Number(tokenInAmount) < 0) {
                 return
             }
-            console.log("TOKENIN__________",tokenInAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
+            // console.log("TOKENIN__________", tokenInAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
             const actualAmountUSD = Big(tokenInAmount.toString()).times(tokenMap[tokenIn.address][1]).toFixed(18);
 
             const expectedAmountUSD = Big(tokenOutAmount)
                 .div((10 ** tokenMap[tokenOut.address][2]))
                 .times(tokenMap[tokenOut.address][1]).toFixed(18);
-            console.log("actual", actualAmountUSD, "exp", expectedAmountUSD)
+            // console.log("actual", actualAmountUSD, "exp", expectedAmountUSD)
             let slipageUSD = Big(actualAmountUSD).minus(expectedAmountUSD).toNumber();
             // console.log("EP", expectedAmount);
             // console.log("AA", actualAmount.toString())
@@ -110,7 +112,7 @@ export function handleWeightedPool(currPool: any, amount: string, usdPrice: numb
 
             graph.addVertex(tokenIn.address);
 
-            graph.addEdge(tokenIn.address, tokenOut.address, slipageUSD, poolId, amountInTokenDecimal, amountOutTokenDecimal,PoolType.Weighted, parameters, currPool.swapFee);
+            graph.addEdge(tokenIn.address, tokenOut.address, slipageUSD, poolId, amountInTokenDecimal, amountOutTokenDecimal, PoolType.Weighted, parameters, currPool.swapFee);
         }
     }
     catch (error) {

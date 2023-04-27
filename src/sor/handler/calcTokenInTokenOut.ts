@@ -36,10 +36,10 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
                     let amountIn: string = pools[0].amountIn;
                     let amountOut: string = pools[0].amountIn;
-                    let price = {
-                        tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                        tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                    };
+                    // let price = {
+                    //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
+                    //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
+                    // };
                     for (let i in pools) {
 
                         if (pools[i].poolType === PoolType.Stable) {
@@ -51,10 +51,10 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                                 .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
 
                             pools[i]["amount"] = "0";
-                            price = {
-                                tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                                tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                            }
+                            // price = {
+                            //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
+                            //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
+                            // }
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                             deleteKeysOfPool.forEach((x: string) => {
@@ -70,7 +70,7 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                             amountOut = Big(weightedPoolTokenInForTokenOut(...pools[i].parameters as [string, any]).toString()).times(10 ** pools[i].parameters[1]["decimalsOut"]).toFixed(0)
 
                             pools[i]["amount"] = "0";
-                            
+
 
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
@@ -84,13 +84,15 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                         }
                     }
 
-                    const fee = {
-                        burnFee: "0",
-                        mintFee: "0"
-                    }
-
+                    // const fee = {
+                    //     burnFee: "0",
+                    //     mintFee: "0"
+                    // }
+                    amountOut = Big(amountOut).times(1 - slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
-                    updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
+                    // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
+                    const limits = [+amountIn, -amountOut];
+                    updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
 
                 else if (kind === SwapType.SwapExactOut) {
@@ -98,10 +100,10 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                     pools.reverse();
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
-                    let price = {
-                        tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                        tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                    };
+                    // let price = {
+                    //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
+                    //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
+                    // };
                     for (let i in pools) {
 
                         if (pools[i].poolType === PoolType.Stable) {
@@ -117,7 +119,7 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                             amountIn = Big(amountIn).plus(Big(amountIn).times(pools[i].swapFee)).toFixed(0);
 
                             pools[i]["amount"] = "0";
-                            
+
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                             deleteKeysOfPool.forEach((x: string) => {
@@ -145,12 +147,15 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                         }
                     }
 
-                    const fee = {
-                        burnFee: "0",
-                        mintFee: "0"
-                    }
+                    // const fee = {
+                    //     burnFee: "0",
+                    //     mintFee: "0"
+                    // }
+                    amountIn = Big(amountIn).times(1 + slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
-                    updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
+                    // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
+                    const limits = [+amountIn, -amountOut];
+                    updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
             }
             else if (pools[0].poolType === PoolType.Synthex) {
@@ -173,8 +178,8 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
                     let amountIn: string = pools[0].amountIn;
                     let amountOut: string = pools[0].amountIn;
-                    let price;
-                    let fee;
+                    // let price;
+                    // let fee;
                     for (let i in pools) {
                         const amountUSD = Big(amountOut).times(tokenMap[pools[i]['assets']['assetIn']][1]).div(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(18);
 
@@ -184,28 +189,30 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
                         pools[i]["amount"] = amountIn;
 
-                        price = {
-                            tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                            tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
-                        };
-                        fee = {
-                            burnFee: pools[0].parameters.burnFee,
-                            mintFee: pools[0].parameters.mintFee
-                        }
+                        // price = {
+                        //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
+                        //     tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
+                        // };
+                        // fee = {
+                        //     burnFee: pools[0].parameters.burnFee,
+                        //     mintFee: pools[0].parameters.mintFee
+                        // }
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                         deleteKeysOfPool.forEach((x: string) => {
                             delete pools[i][x];
                         })
                     }
+                    amountOut = Big(amountOut).times(1 - slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
-                    updatedOutput.push({ swap: pools, price, fee, isBalancerPool: false });
+                    const limits = [+amountIn, -amountOut];
+                    updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
                 else if (kind === SwapType.SwapExactOut) {
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
-                    let price;
-                    let fee;
+                    // let price;
+                    // let fee;
                     for (let i in pools) {
 
                         const amountUSD = Big(amountIn).times(tokenMap[pools[i]['assets']['assetOut']][1]).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
@@ -216,23 +223,24 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
 
                         pools[i]["amount"] = amountOut;
 
-                        price = {
-                            tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                            tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
-                        };
-                        fee = {
-                            burnFee: pools[0].parameters.burnFee,
-                            mintFee: pools[0].parameters.mintFee
-                        }
+                        // price = {
+                        //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
+                        //     tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
+                        // };
+                        // fee = {
+                        //     burnFee: pools[0].parameters.burnFee,
+                        //     mintFee: pools[0].parameters.mintFee
+                        // }
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                         deleteKeysOfPool.forEach((x: string) => {
                             delete pools[i][x];
                         })
                     }
-
+                    amountIn = Big(amountIn).times(1 + slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
-                    updatedOutput.push({ swap: pools, price, fee, isBalancerPool: false });
+                    const limits = [+amountIn, -amountOut];
+                    updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
             }
         }
