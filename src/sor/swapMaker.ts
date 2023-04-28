@@ -96,7 +96,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                     }
                 }
                 else if (kind === SwapType.SwapExactOut) {
-                    
+
                     if (index === 0) {
                         newLimits[swap.assetOutIndex] = swapEle.limits[1];
                     }
@@ -107,7 +107,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                         newLimits[swap.assetInIndex] = swapEle.limits[0];
                     }
                 }
-
+            
             });
 
             swapEle.limits = newLimits;

@@ -2,7 +2,7 @@ import axios from "axios"
 import { promises as fs } from "fs";
 
 
-setSynthsConfig()
+// setSynthsConfig()
 
 export async function setSynthsConfig() {
     try {

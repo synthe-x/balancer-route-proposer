@@ -1,1 +1,83 @@
-{"0x0113e1920540fa9547389d02e7e79f60b4d4f503":{"name":"Foreign Exchange","symbol":"F","feeToken":"0x50e73618a59a317ae51cb704d7bb078900dcb6b4","oracle":"0x40ca1a89b1d89cebc130ac1edf9c714d2d486540","synths":{"0x19955b8a994083d4efe5577e673b3e84d15edcbd":{"symbol":"fSEK","burnFee":"4","mintFee":"3","priceUSD":"0.09668599"},"0x4ae1c78cc903d93eae767cad2603d44437a1c34e":{"symbol":"fSGD","burnFee":"7","mintFee":"5","priceUSD":"0.749241"},"0x50e73618a59a317ae51cb704d7bb078900dcb6b4":{"symbol":"fUSD","burnFee":"4","mintFee":"2","priceUSD":"1"},"0x5f3b1bf1f8c67c3a6336a542232a2525ec3770c6":{"symbol":"fJPY","burnFee":"4","mintFee":"2","priceUSD":"0.00745343"},"0x6bc3457948e0eebe99b2423f00dcad779260ef91":{"symbol":"fGBP","burnFee":"4","mintFee":"3","priceUSD":"1.24713"},"0x8671c0f25ea7cb7162725847e1cf2b52f5346329":{"symbol":"fCNY","burnFee":"4","mintFee":"3","priceUSD":"0.14444813"},"0x87944c76c3f332b4cc2beb82c2aa3e51dde66545":{"symbol":"fCAD","burnFee":"7","mintFee":"5","priceUSD":"0.7334302"},"0x96949ab538aceb2da7efb984c9b316bf69cc8689":{"symbol":"fCHF","burnFee":"4","mintFee":"3","priceUSD":"1.1171687"},"0xad958692033dfe0b87fc8a2761c833261b689924":{"symbol":"fKRW","burnFee":"4","mintFee":"3","priceUSD":"0.00074394"},"0xefb005eca8c9c606a7b7566ee80d6ae463abd792":{"symbol":"fEUR","burnFee":"4","mintFee":"2","priceUSD":"1.10098"}}},"0x985f4b41fed9363f933bad850f5a07f13fbc9618":{"name":"Crypto Market","symbol":"C","feeToken":"0x30ebd10f4df5e3f9de8bad8ab130x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f207c23f1cbc7f","oracle":"0xadb149be5e73b976d8dc69ea7ad305e8edf7739e","synths":{"0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f":{"symbol":"cUSD","burnFee":"4","mintFee":"2","priceUSD":"1"},"0x32b6f6931b62abafb38b29d4438f2986f6e392c7":{"symbol":"cMATIC","burnFee":"4","mintFee":"2","priceUSD":"0.99509914"},"0x489e8c1f384cf0fdac12f87b0e06009c3b039d82":{"symbol":"cXRP","burnFee":"4","mintFee":"2","priceUSD":"0.45894681"},"0x5841360012d9d7ad0ddc15e9ff65a734a9bbac62":{"symbol":"cBTC","burnFee":"4","mintFee":"2","priceUSD":"28970"},"0x586f0cd6529d29304b1bc779556ae772ea32fea1":{"symbol":"cBNB","burnFee":"4","mintFee":"2","priceUSD":"329.3"},"0x71bc2376f066208a644d90cd8c1213d0e9167f4c":{"symbol":"cADA","burnFee":"4","mintFee":"2","priceUSD":"0.40948123"},"0x756e1ad28c1347a5d45e0d1b687a1d81a844d177":{"symbol":"cDOT","burnFee":"4","mintFee":"2","priceUSD":"5.91"},"0x80703c6120cbc5fdc9d1971dbc43e06d1d0be0d7":{"symbol":"cLINK","burnFee":"4","mintFee":"2","priceUSD":"7.07"},"0x9b945f60c730c6da2e2218646beeaee6d0edf2d7":{"symbol":"cDOGE","burnFee":"4","mintFee":"2","priceUSD":"0.0795656"},"0xcf13e9098609be3e75e593da86795f7ede0676e3":{"symbol":"cNEAR","burnFee":"4","mintFee":"2","priceUSD":"1.89823"},"0xe43a1234ed7715fcf8410ca8bd5aea3b720771fa":{"symbol":"cETH","burnFee":"4","mintFee":"2","priceUSD":"1886.97535"},"0xf52fb97496cdcf77bff043f700613cba1fa0e5a3":{"symbol":"cSOL","burnFee":"4","mintFee":"2","priceUSD":"21.67898143"}}}}
+{
+
+    "0xbbb3abfa2dd320d85c64e8825c1e32ad0026fae5": {
+        "name": "Crypto Market",
+        "symbol": "C",
+        "feeToken": "0x30ebd10f4df5e3f9de8bad8ab130x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f207c23f1cbc7f",
+        "oracle": "0xC6312Fd032da961C576aA7dC1d0ECC9d03E1910e",
+        "synths": {
+            "0xe379874446dd29178e68852992daa80be952c0b3": {
+                "symbol": "cUSD",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "1"
+            },
+            "0x3961d75424804db67024f6397732525f2614948f": {
+                "symbol": "cMATIC",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "1.01159896"
+            },
+            "0x3f13de41658d8e850fbd3c9ffc007aba970dd35e": {
+                "symbol": "cXRP",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "0.47561509"
+            },
+            "0x3e3f330ab853baf013e0945fc5a6e6fc2440ac98": {
+                "symbol": "cBTC",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "29482.7867"
+            },
+            "0xc5ac98c06391981a4802a31ca5c62e6c3efda48d": {
+                "symbol": "cBNB",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "326.737256"
+            },
+            "0x3721472089bfe55c1e761c4bb1776a731eca9817": {
+                "symbol": "cADA",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "0.4096"
+            },
+            "0xb4a41569c35e2944a809b94b6565e05a3c87c4d2": {
+                "symbol": "cDOT",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "5.95027"
+            },
+            "0x7a6beca43d88ea602911273052697aae871575e5": {
+                "symbol": "cLINK",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "7.154"
+            },
+            "0x0e4f783e2c0c7d4e9c92d5c9f929a3193b1c2d02": {
+                "symbol": "cDOGE",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "0.08021"
+            },
+            "0x6c198aa7d4817c62de7a338316769be784167646": {
+                "symbol": "cNEAR",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "1.92865011"
+            },
+            "0xa28d78534d18324da06fc487041b1ab4a16d557d": {
+                "symbol": "cETH",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "1912.10375"
+            },
+            "0xae369a2dafce201716c6b4c787832bbdbbada685": {
+                "symbol": "cSOL",
+                "burnFee": "4",
+                "mintFee": "2",
+                "priceUSD": "22.38522415"
+            }
+        }
+    }
+}

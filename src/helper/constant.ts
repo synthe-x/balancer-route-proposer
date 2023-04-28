@@ -4,71 +4,71 @@ import { ethers } from "ethers";
 export const provider = new ethers.providers.JsonRpcProvider("https://arb1.arbitrum.io/rpc")
 export type TokenMap = { [key: string]: [string, string, number] };
 export const balancerPoolBySynthex = [
+    // {
+    //     id: '0x32df62dc3aed2cd6224193052ce665dc18165841000200000000000000000USDC_cUSD_fUSD',
+    //     poolType: 'Weighted',
+    //     totalLiquidity: '1000000000',
+    //     slipage: 0.2,
+    //     swapFee: "0.0025",
+    //     amp: null,
+    //     tokens: [
+    //         {   
+    //             address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+    //             weight: "0.333333333333333333",
+    //             balance: "200000000000000000",
+    //             symbol: 'USDC',
+    //             decimals: 6,
+    //             token: {
+    //                 latestUSDPrice: '1',
+    //                 latestFXPrice: null
+    //             }
+    //         },
+    //         {
+    //             address: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
+    //             symbol: 'cUSD',
+    //             decimals: 18,
+    //             weight: "0.333333333333333333",
+    //             balance: "200000000000000000",
+    //             token: {
+    //                 latestUSDPrice: '1',
+    //             }
+    //         },
+    //         {
+    //             address: '0x50e73618a59a317ae51cb704d7bb078900dcb6b4',
+    //             symbol: 'fUSD',
+    //             decimals: 18,
+    //             weight: "0.333333333333333333",
+    //             balance: "200000000000000000",
+    //             token: {
+    //                 latestUSDPrice: '1',
+    //             }
+    //         }
+    //     ]
+    // },
     {
-        id: '0x32df62dc3aed2cd6224193052ce665dc18165841000200000000000000000USDC_cUSD_fUSD',
-        poolType: 'Weighted',
-        totalLiquidity: '1000000000',
-        slipage: 0.2,
+        id: '0x19ff30f9b2d32bfb0f21f2db6c6a3a8604eb8c2b00000000000000000000041c',
+        poolType: 'Stable',
         swapFee: "0.0025",
-        amp: null,
-        tokens: [
-            {   
-                address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-                weight: "0.333333333333333333",
-                balance: "200000000000000000",
-                symbol: 'USDC',
-                decimals: 6,
-                token: {
-                    latestUSDPrice: '1',
-                    latestFXPrice: null
-                }
-            },
-            {
-                address: '0x30ebd10f4df5e3f9de8bad8ab13207c23f1cbc7f',
-                symbol: 'cUSD',
-                decimals: 18,
-                weight: "0.333333333333333333",
-                balance: "200000000000000000",
-                token: {
-                    latestUSDPrice: '1',
-                }
-            },
-            {
-                address: '0x50e73618a59a317ae51cb704d7bb078900dcb6b4',
-                symbol: 'fUSD',
-                decimals: 18,
-                weight: "0.333333333333333333",
-                balance: "200000000000000000",
-                token: {
-                    latestUSDPrice: '1',
-                }
-            }
-        ]
-    },
-    {
-        id: '0x32df62dc3aed2cd6224193052ce665dc181658410002000000000000000003WETH_CETH',
-        poolType: 'Weighted',
-        swapFee: "0.0025",
-        amp: null,
+        amp: 100,
         tokens: [
             {
                 weight: "0.5",
                 address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-                balance: "200000000000",
+                balance: "110",
                 symbol: 'WETH',
                 decimals: 18,
                 token: {
-                    latestUSDPrice: '1900',
+                    latestUSDPrice: '1907',
                 }
             },
             {
                 weight: "0.5",
-                address: '0xe43a1234ed7715fcf8410ca8bd5aea3b720771fa',
-                balance: "200000000000",
+                address: '0xa28d78534d18324da06fc487041b1ab4a16d557d',
+                balance: "110",
                 symbol: 'cETH',
                 decimals: 18,
                 token: {
-                    latestUSDPrice: '1900',
+                    latestUSDPrice: '1907',
                   
                 }
             }

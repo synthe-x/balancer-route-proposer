@@ -88,10 +88,10 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                     //     burnFee: "0",
                     //     mintFee: "0"
                     // }
-                    amountOut = Big(amountOut).times(1 - slipage / 100).toString();
+
                     pools.push({ amountIn, amountOut });
                     // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
-                    const limits = [+amountIn, -amountOut];
+                    const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
 
@@ -151,10 +151,9 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                     //     burnFee: "0",
                     //     mintFee: "0"
                     // }
-                    amountIn = Big(amountIn).times(1 + slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
                     // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
-                    const limits = [+amountIn, -amountOut];
+                    const limits = [+amountIn * (1 + slipage / 100), -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
             }
@@ -171,7 +170,7 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                     }
                     else if (kind === SwapType.SwapExactOut) {
                         pools[0].amountOut = lastArr[lastArr.length - 1]["amountIn"];
-                    }
+                    } 
                 }
 
                 if (kind === SwapType.SwapExactIn) {
@@ -203,9 +202,9 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                             delete pools[i][x];
                         })
                     }
-                    amountOut = Big(amountOut).times(1 - slipage / 100).toString();
                     pools.push({ amountIn, amountOut });
-                    const limits = [+amountIn, -amountOut];
+
+                    const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
                     updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
                 else if (kind === SwapType.SwapExactOut) {
@@ -237,9 +236,9 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
                             delete pools[i][x];
                         })
                     }
-                    amountIn = Big(amountIn).times(1 + slipage / 100).toString();
+
                     pools.push({ amountIn, amountOut });
-                    const limits = [+amountIn, -amountOut];
+                    const limits = [+amountIn * (1 + slipage / 100), -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
             }

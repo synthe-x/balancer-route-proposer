@@ -54,7 +54,7 @@ async function _oracleMulticall(input: any) {
         return null
     }
 }
-fetchOracleData()
+// fetchOracleData()
 export async function fetchOracleData() {
     try {
 

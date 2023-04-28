@@ -22,7 +22,7 @@ let server = httpServer.listen(3010, function () {
 // let g = new Graph();
 // a("1")
 // routeProposer("100", "0x4e352cF164E64ADCBad318C3a1e222E9EBa4Ce42", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 0);
-fetchOracleData()
+// fetchOracleData()
 fetchPoolData()
 // routeProposer("100", "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", "0x3082cc23568ea640225c2467653db90e9250aaa0", 1);
 
