@@ -2,6 +2,8 @@ import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
 import { Graph, PoolType } from "../../graph/graph";
 import { ethers } from "ethers";
+import Web3 from 'web3';
+
 
 
 
@@ -57,7 +59,9 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                     // console.log("TOKENOUT //////", +amountOut/(10 ** tokenMap[tokenOut][2]),tokenIn, tokenOut, poolId);
                     const parameters = { burnFee, mintFee }
 
-                    let currPoolId = poolId+"000000000000000000000000";
+                    const web3 = new Web3();
+                    // converting address to bytes32
+                    const currPoolId = web3.utils.padLeft(poolId, 64).toLowerCase();
                     // console.log(+amountIn/1e18, +amountOut/1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
                     // console.log("                       ");
                     graph.addEdge(tokenIn, tokenOut, slipageUSD, currPoolId, amountIn, amountOut, PoolType.Synthex, parameters, "0")
