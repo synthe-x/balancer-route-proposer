@@ -1,50 +1,51 @@
 
+import { ERROR } from "../error";
+import { IDijkstraResponse, PoolType } from "../types";
 import { PriorityQueue } from "./pQueue";
-import { Queue } from "./queue";
 
 
-export enum PoolType {
-    Synthex,
-    Weighted,
-    Stable  
-}
 
-const pq = new PriorityQueue();
+
+
+
+// const pq = new PriorityQueue();
 // For non directed graph
 export class Graph {
-    noOfVertices: number = 0;
-    adList: Map<any, any>;
-    constructor() {
 
+    noOfVertices: number = 0;
+    addList: Map<string, any>;
+    constructor() {
         // represent whole graph connections
-        this.adList = new Map();
+        this.addList = new Map();
     }
 
-    addVertex(asset: any) {
+    addVertex(asset: string) {
 
-        if (!this.adList.get(asset)) {
-            this.adList.set(asset, []);
+        if (!this.addList.get(asset)) {
+            this.addList.set(asset, []);
             this.noOfVertices++
         }
     }
 
-    addEdge(asset: any, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, poolType: PoolType, parameters: any, swapFee: string) {
+
+    addEdge(asset: string, conToken: string, slipage: number, pool: string, amountIn: string, amountOut: string, poolType: PoolType, parameters: any, swapFee: string) {
         //this is adding edge asset to connectingToken
-        this.adList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, poolType, parameters, swapFee});
+        this.addVertex(asset);
+        this.addList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, poolType, parameters, swapFee });
 
         //this is adding conToken target to Asset.
-        // this.adList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
+        // this.addList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
     };
 
     printGraph() {
-        const keys = this.adList.keys();
+        const keys = this.addList.keys();
 
         for (let ele of keys) {
 
-            console.log(`${ele}:`, this.adList.get(ele))
+            console.log(`${ele}:`, this.addList.get(ele))
         }
     }
-
+    /*
     bfs(vertex: any, visited: any = {}) {
 
         const queue = new Queue();
@@ -54,7 +55,7 @@ export class Graph {
         while (!queue.isEmpty()) {
             const ele = queue.deQueue();
             console.log("Ele", ele);
-            const vertices = this.adList.get(ele);
+            const vertices = this.addList.get(ele);
 
             for (let e of vertices) {
 
@@ -70,7 +71,7 @@ export class Graph {
     bft() {
         let visited: any = {};
         let disconnetedCount: number = 0;
-        for (let key of this.adList.keys()) {
+        for (let key of this.addList.keys()) {
 
             if (!visited[key]) {
                 disconnetedCount++
@@ -87,7 +88,7 @@ export class Graph {
         visited[vertex] = true;
         console.log(vertex);
 
-        for (let ele of this.adList.get(vertex)) {
+        for (let ele of this.addList.get(vertex)) {
 
             if (!visited[ele]) {
                 this.dfs(ele, visited);
@@ -99,7 +100,7 @@ export class Graph {
     dft() {
         let visited: any = {};
         let disconnetedCount: number = 0;
-        for (let key of this.adList.keys()) {
+        for (let key of this.addList.keys()) {
 
             if (!visited[key]) {
                 disconnetedCount++
@@ -109,21 +110,21 @@ export class Graph {
 
         }
         console.log("Dis Count", disconnetedCount);
-    }
+    }*/
 
     dijkstra(source: string, endSource?: any) {
-
+        const pq: PriorityQueue = new PriorityQueue();
         let visited: any = {}
 
         let dist: any = {};
 
-        for (let token of this.adList.keys()) {
+        for (let token of this.addList.keys()) {
             dist[token] = { slipage: Infinity };
             dist[token]["amount"] = "0";
         }
 
         if (dist[source] == undefined) {
-            return console.log("Token not available")
+            return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
         }
 
         dist[source]["slipage"] = 0;
@@ -148,9 +149,9 @@ export class Graph {
 
             pq.dequeue()
 
-            let sourceAdj = this.adList.get(newSource);
-            // console.log("source ADJ======>", sourceAdj)
-            if(!sourceAdj) {
+            let sourceAdj = this.addList.get(newSource);
+
+            if (!sourceAdj) {
                 continue;
             }
             sourceAdj = sourceAdj.sort((a: any, b: any) => {
@@ -195,7 +196,7 @@ export class Graph {
 
         }
 
-        return dist
+        return dist as { [key: string]: IDijkstraResponse }
     }
 }
 

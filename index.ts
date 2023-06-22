@@ -1,18 +1,18 @@
 import express from 'express';
 import { createServer } from "http";
-import { routeProposer } from './src/sor';
-import {Graph} from './src/graph/graph'
-import{fetchOracleData} from './src/helper/getOracleDetails'
-import {swapMaker} from "./src/sor/swapMaker";
+import { routeProposer } from './src/sor/routeProposer';
+import { Graph } from './src/graph/graph'
+import { fetchOracleData } from './src/helper/getOracleDetails'
+import { swapMaker } from "./src/sor/swapMaker";
 
-import route from "./src/routes/routeProposer"
+import route from "./src/routes/route"
 import { fetchPoolData } from './src/sor/graphData/graphquery';
 const app = express();
 
 const httpServer = createServer(app);
 
 app.use(express.json());
-app.use("/",   route)
+app.use("/", route)
 
 let server = httpServer.listen(3010, function () {
     console.log("app running on port " + (3010));

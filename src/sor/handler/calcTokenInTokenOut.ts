@@ -1,15 +1,18 @@
 import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
-import { PoolType } from "../../graph/graph";
 import { BigNumberish, fp } from "../../math/numbers";
 import { stablePoolcalcInGivenOut, stablePoolcalcOutGivenIn } from "../../math/stablePool";
 import { weightedPoolTokenInForExactTokenOut, weightedPoolTokenInForTokenOut } from "../../math/wieghtedPool";
+import { IError, ISwapData, ITokenMap, PoolType } from "../../types";
+import { ERROR } from "../../error";
 
 
 
 
 
-export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, tokenMap: any, slipage: number) {
+export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: ITokenMap, slipage: number) :
+(ISwapData[][]| IError)
+{
     try {
         const updatedOutput: any = [];
         if (kind === SwapType.SwapExactOut) {
@@ -248,11 +251,12 @@ export function calcTokenInTokenOut(output: any, assets: any, kind: SwapType, to
         if (kind === SwapType.SwapExactOut) {
             updatedOutput.reverse()
         }
-        return updatedOutput
+        return updatedOutput as ISwapData[][]
 
     }
     catch (error) {
         console.log("Error @ calcTokenInTokenOut", error);
+        return {status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500}
     }
 }
 

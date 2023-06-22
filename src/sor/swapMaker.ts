@@ -1,6 +1,8 @@
 import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
-import { routeProposer } from ".";
+import { routeProposer } from "./routeProposer";
+import { Response } from "express";
+import { ERROR } from "../error";
 
 
 
@@ -76,10 +78,16 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
 
         let proposeRoute = await routeProposer(amount, t1, t2, kind, slipage, sender, recipient, deadline);
 
-        proposeRoute.swapInput.forEach((swapEle: any, index: number) => {
+        if (typeof proposeRoute == "object" && "status" in proposeRoute) {
+            return proposeRoute
+        }
 
-            swapEle.swap.pop();
-            swapEle.assets = proposeRoute.assets[index];
+
+        proposeRoute.swapInput.forEach((swapEle: any, index: number) => {
+            if ('assets' in proposeRoute) {
+                swapEle.swap.pop();
+                swapEle.assets = proposeRoute.assets[index];
+            }
             const newLimits = Array(swapEle.assets.length).fill(0);
             swapEle.swap.forEach((swap: any, index: number) => {
 
@@ -107,7 +115,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                         newLimits[swap.assetInIndex] = swapEle.limits[0];
                     }
                 }
-            
+
             });
 
             swapEle.limits = newLimits;
@@ -126,7 +134,8 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                 toInternalBalance: false
             }
         }
-        return data;
+
+        return data
     }
     catch (error: any) {
         console.log(`Error @ swapMaker`, error)

@@ -1,7 +1,8 @@
 import { SwapType } from "@balancer-labs/sdk";
 import { parseFixed } from "@ethersproject/bignumber";
-import { PoolType } from "../../graph/graph";
 import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
+import { IDijkstraResponse, ISwapData, PoolType, ITokenMap, IError } from "../../types";
+import { ERROR } from "../../error";
 
 
 
@@ -9,10 +10,16 @@ import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
 
 
 
-export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number) {
+export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number)
+    :
+    (IError | {
+        swapInput: ISwapData[][];
+        assets: string[][];
+        tokenMap: ITokenMap;
+    }) {
     try {
 
-        let swapInput = [];
+        let swapInput: ISwapData[][] = [];
         let assets: string[][] = [];
         let assetsMap: any = {}
         let swapData: any = [];
@@ -101,11 +108,17 @@ export function routeSeperator(outPut: any, tokenMap: any, kind: SwapType, slipa
                 // }
             }
         }
+
+        const _swapInput = calcTokenInTokenOut(swapInput, kind, tokenMap, slipage);
         
-        swapInput = calcTokenInTokenOut(swapInput, assets, kind, tokenMap, slipage)
-        return { swapInput, assets, tokenMap }
+        if (typeof _swapInput == 'object' && "status" in _swapInput) {
+            return _swapInput
+        }
+        swapInput = _swapInput;
+        return { swapInput, assets, tokenMap };
     }
     catch (error) {
-        console.log("Error @ routeProposerHelper", error)
+        console.log("Error @ routeProposerHelper", error);
+        return { status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500 }
     }
 }

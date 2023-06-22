@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 
 export const provider = new ethers.providers.JsonRpcProvider("https://arb1.arbitrum.io/rpc")
-export type TokenMap = { [key: string]: [string, string, number] };
+
 export const balancerPoolBySynthex = [
     // {
     //     id: '0x32df62dc3aed2cd6224193052ce665dc18165841000200000000000000000USDC_cUSD_fUSD',
