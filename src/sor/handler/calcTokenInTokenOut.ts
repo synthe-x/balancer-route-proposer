@@ -3,16 +3,15 @@ import Big from "big.js";
 import { BigNumberish, fp } from "../../math/numbers";
 import { stablePoolcalcInGivenOut, stablePoolcalcOutGivenIn } from "../../math/stablePool";
 import { weightedPoolTokenInForExactTokenOut, weightedPoolTokenInForTokenOut } from "../../math/wieghtedPool";
-import { IError, ISwapData, ITokenMap, PoolType } from "../../types";
-import { ERROR } from "../../error";
+import { IError, ISwapData, ITokenMap, PoolType } from "../../utils/types";
+import { ERROR } from "../../utils/error";
 
 
 
 
 
-export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: ITokenMap, slipage: number) :
-(ISwapData[][]| IError)
-{
+export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: ITokenMap, slipage: number):
+    (ISwapData[][] | IError) {
     try {
         const updatedOutput: any = [];
         if (kind === SwapType.SwapExactOut) {
@@ -39,10 +38,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                     let amountIn: string = pools[0].amountIn;
                     let amountOut: string = pools[0].amountIn;
-                    // let price = {
-                    //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                    //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                    // };
+
                     for (let i in pools) {
 
                         if (pools[i].poolType === PoolType.Stable) {
@@ -54,10 +50,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                                 .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
 
                             pools[i]["amount"] = "0";
-                            // price = {
-                            //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                            //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                            // }
+
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                             deleteKeysOfPool.forEach((x: string) => {
@@ -86,14 +79,8 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             pools[0]["amount"] = amountIn;
                         }
                     }
-
-                    // const fee = {
-                    //     burnFee: "0",
-                    //     mintFee: "0"
-                    // }
-
                     pools.push({ amountIn, amountOut });
-                    // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
+
                     const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
@@ -103,10 +90,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                     pools.reverse();
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
-                    // let price = {
-                    //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                    //     tokenOut: tokenMap[pools[pools.length - 1]['assets']['assetOut']][1]
-                    // };
+
                     for (let i in pools) {
 
                         if (pools[i].poolType === PoolType.Stable) {
@@ -150,12 +134,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                         }
                     }
 
-                    // const fee = {
-                    //     burnFee: "0",
-                    //     mintFee: "0"
-                    // }
                     pools.push({ amountIn, amountOut });
-                    // updatedOutput.push({ swap: pools, price, fee, isBalancerPool: true });
                     const limits = [+amountIn * (1 + slipage / 100), -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
@@ -173,15 +152,14 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                     }
                     else if (kind === SwapType.SwapExactOut) {
                         pools[0].amountOut = lastArr[lastArr.length - 1]["amountIn"];
-                    } 
+                    }
                 }
 
                 if (kind === SwapType.SwapExactIn) {
 
                     let amountIn: string = pools[0].amountIn;
                     let amountOut: string = pools[0].amountIn;
-                    // let price;
-                    // let fee;
+
                     for (let i in pools) {
                         const amountUSD = Big(amountOut).times(tokenMap[pools[i]['assets']['assetIn']][1]).div(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(18);
 
@@ -191,14 +169,6 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                         pools[i]["amount"] = amountIn;
 
-                        // price = {
-                        //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                        //     tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
-                        // };
-                        // fee = {
-                        //     burnFee: pools[0].parameters.burnFee,
-                        //     mintFee: pools[0].parameters.mintFee
-                        // }
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                         deleteKeysOfPool.forEach((x: string) => {
@@ -213,8 +183,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                 else if (kind === SwapType.SwapExactOut) {
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
-                    // let price;
-                    // let fee;
+
                     for (let i in pools) {
 
                         const amountUSD = Big(amountIn).times(tokenMap[pools[i]['assets']['assetOut']][1]).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
@@ -225,14 +194,6 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                         pools[i]["amount"] = amountOut;
 
-                        // price = {
-                        //     tokenIn: tokenMap[pools[0]['assets']['assetIn']][1],
-                        //     tokenOut: tokenMap[pools[0]['assets']['assetOut']][1]
-                        // };
-                        // fee = {
-                        //     burnFee: pools[0].parameters.burnFee,
-                        //     mintFee: pools[0].parameters.mintFee
-                        // }
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
                         deleteKeysOfPool.forEach((x: string) => {
@@ -247,7 +208,6 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
             }
         }
 
-        // console.log("calc", updatedOutput);
         if (kind === SwapType.SwapExactOut) {
             updatedOutput.reverse()
         }
@@ -256,7 +216,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
     }
     catch (error) {
         console.log("Error @ calcTokenInTokenOut", error);
-        return {status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500}
+        return { status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500 }
     }
 }
 

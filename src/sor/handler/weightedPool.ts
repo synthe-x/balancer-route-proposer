@@ -1,10 +1,9 @@
 import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
-import { Graph} from "../../graph/graph";
+import { Graph } from "../../graph/graph";
 import { weightedPoolTokenInForExactTokenOut, weightedPoolTokenInForTokenOut } from "../../math/wieghtedPool";
 import { bnum } from "../../utils/bigNumber";
-import { Response } from "express";
-import { IPool, IPoolPairData, PoolType, IToken, ITokenMap } from "../../types";
+import { IPool, IPoolPairData, PoolType, IToken, ITokenMap } from "../../utils/types";
 
 
 
@@ -12,7 +11,7 @@ import { IPool, IPoolPairData, PoolType, IToken, ITokenMap } from "../../types";
 
 
 
-export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: number, kind: SwapType, tokenMap: ITokenMap, tokenIn: IToken , tokenOut: IToken, graph: Graph) {
+export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: number, kind: SwapType, tokenMap: ITokenMap, tokenIn: IToken, tokenOut: IToken, graph: Graph) {
     try {
 
         const poolId = currPool.id;
@@ -46,14 +45,8 @@ export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: nu
                 .times(tokenMap[tokenIn.address][1]).toFixed(18);
 
             let slipageUSD = Big(expectedAmountUSD).minus(actualAmountUSD).toNumber();
-            // console.log("TOKENOUT__________", slipageUSD, tokenOutAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
-            // console.log('                             ')
-            // console.log("EP", expectedAmountUSD);
-            // console.log("AA", actualAmountUSD.toString())
-            // console.log(tokenIn.address)
-            // console.log(tokenOut.address)
-            // console.log(poolId)
-            console.log("Slipage-weighted", slipageUSD)
+
+            // console.log("Slipage-weighted", slipageUSD)
             slipageUSD = slipageUSD > 0 ? slipageUSD : 0;
 
             const amountInTokenDecimal = Big(tokenInAmount).toFixed(0);
@@ -61,8 +54,6 @@ export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: nu
             const amountOutTokenDecimal = Big(tokenOutAmount.toString()).times(10 ** tokenMap[tokenOut.address][2]).toFixed(0);
 
             if (!slipageUSD) slipageUSD = 0;
-
-            // graph.addVertex(tokenIn.address);
 
             graph.addEdge(tokenIn.address, tokenOut.address, slipageUSD, poolId, amountInTokenDecimal, amountOutTokenDecimal, PoolType.Weighted, parameters, currPool.swapFee);
         }
@@ -89,20 +80,16 @@ export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: nu
             if (isNaN(Number(tokenInAmount)) || Number(tokenInAmount) < 0) {
                 return
             }
-            // console.log("TOKENIN__________", tokenInAmount.toString(), currPool.id, tokenIn.address, tokenOut.address);
+
             const actualAmountUSD = Big(tokenInAmount.toString()).times(tokenMap[tokenIn.address][1]).toFixed(18);
 
             const expectedAmountUSD = Big(tokenOutAmount)
                 .div((10 ** tokenMap[tokenOut.address][2]))
                 .times(tokenMap[tokenOut.address][1]).toFixed(18);
-            // console.log("actual", actualAmountUSD, "exp", expectedAmountUSD)
+
             let slipageUSD = Big(actualAmountUSD).minus(expectedAmountUSD).toNumber();
-            // console.log("EP", expectedAmount);
-            // console.log("AA", actualAmount.toString())
-            // console.log(tokenIn.address)
-            // console.log(tokenOut.address)
-            // console.log(poolId)
-            console.log("Slipage-weighted", slipageUSD)
+
+            // console.log("Slipage-weighted", slipageUSD)
 
             slipageUSD = slipageUSD > 0 ? slipageUSD : 0;
 
@@ -111,8 +98,6 @@ export function handleWeightedPool(currPool: IPool, amount: string, usdPrice: nu
             const amountOutTokenDecimal = Big(tokenOutAmount).toFixed(0);
 
             if (!slipageUSD) slipageUSD = 0;
-
-            // graph.addVertex(tokenIn.address);
 
             graph.addEdge(tokenIn.address, tokenOut.address, slipageUSD, poolId, amountInTokenDecimal, amountOutTokenDecimal, PoolType.Weighted, parameters, currPool.swapFee);
         }

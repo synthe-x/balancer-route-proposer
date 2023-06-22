@@ -1,8 +1,8 @@
 import { SwapType } from "@balancer-labs/sdk";
 import Big from "big.js";
-import { Graph, PoolType } from "../../graph/graph";
-import { ethers } from "ethers";
+import { Graph } from "../../graph/graph";
 import Web3 from 'web3';
+import { PoolType } from "../../utils/types";
 
 
 

@@ -10,27 +10,21 @@ import path from "path";
 import { handleWeightedPool } from './handler/weightedPool';
 import { handleStablePool } from './handler/stablePool';
 import { handleSynthexPool } from './handler/synthexPool';
-import { dummyPool, getPools, getTokenPrice } from './graphData/graphquery';
+import { dummyPool, getPools, getTokenPrice } from './subGraphData/graphquery';
 import { routeSeperator } from './handler/routeSeperator';
 import { constantPrice } from './constant';
-import { Response } from 'express';
-import { ERROR } from '../error';
-import { IDijkstraResponse, IError, IPool, ISwapData, IToken, ITokenMap } from '../types';
+import { ERROR } from '../utils/error';
+import { IDijkstraResponse, IError, IPool, IRouteProposer, ISwapData, IToken, ITokenMap } from '../utils/types';
 
 
 
 
-// 0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709
-// routeProposer("1", "0xf0b5ceefc89684889e5f7e0a7775bd100fcd3709", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", 1);
 
-export async function routeProposer(amount: string, t1: string, t2: string, kind: SwapType, slipage: number, sender: string, recipient: string, deadline: number)
-    :
-    Promise<IError | {
-        swapInput: ISwapData[][];
-        assets: string[][];
-        tokenMap: ITokenMap;
-    }> {
+
+export async function routeProposer(args: IRouteProposer):
+    Promise<IError | { swapInput: ISwapData[][]; assets: string[][]; tokenMap: ITokenMap; }> {
     try {
+        let { amount, t1, t2, kind, slipage, sender, recipient, deadline } = args;
 
         if (isNaN(Number(amount)) || Number(amount) <= 0) {
             return { status: false, error: ERROR.AMOUNT_NOT_VALID, statusCode: 400 }
@@ -50,7 +44,7 @@ export async function routeProposer(amount: string, t1: string, t2: string, kind
             return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
         }
 
-        console.log(usdPrice);
+        // console.log(usdPrice);
 
         if (!allPools) return { status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500 }
 
@@ -142,7 +136,7 @@ export async function routeProposer(amount: string, t1: string, t2: string, kind
 
         outPut.reverse();
 
-        console.log(outPut);
+        // console.log(outPut);
         const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
         return data
 

@@ -1,6 +1,6 @@
 
-import { ERROR } from "../error";
-import { IDijkstraResponse, PoolType } from "../types";
+import { ERROR } from "../utils/error";
+import { IDijkstraResponse, PoolType } from "../utils/types";
 import { PriorityQueue } from "./pQueue";
 
 

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { swapMaker } from "../sor/swapMaker";
-import { ERROR } from "../error";
+import { ERROR } from "../utils/error";
 
 
 
@@ -11,9 +11,17 @@ import { ERROR } from "../error";
 export async function getPath(req: Request, res: Response) {
     try {
 
-        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.params;
+        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.body;
 
-        const data = await swapMaker(amount, tokenIn, tokenOut, Number(kind), Number(slipage), sender, recipient, Number(deadline));
+        const input = [tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline]
+        for (let e of input) {
+            
+            if (e === undefined) {
+                return res.status(400).send({ status: false, error: ERROR.PROPERTY_MISSING_IN_REQ_BODY });
+
+            }
+        }
+        const data = await swapMaker(amount, tokenIn, tokenOut, kind, slipage, sender, recipient, deadline);
 
         if (typeof data == 'object' && "status" in data || data === undefined) {
 

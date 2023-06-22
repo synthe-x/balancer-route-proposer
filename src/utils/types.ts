@@ -1,5 +1,6 @@
 
-import { BigNumber as bnum } from "./utils/bigNumber";
+import { SwapType } from "@balancer-labs/sdk";
+import { BigNumber as bnum } from "./bigNumber";
 
 export interface IConstantPrices {
     [key: string]: string
@@ -61,9 +62,9 @@ export interface IError {
     status: boolean;
     error: string;
     statusCode: number;
-} 
+}
 
-export interface ISwapData  {
+export interface ISwapData {
     poolId: string;
     assetInIndex: string;
     assetOutIndex: string;
@@ -76,7 +77,17 @@ export interface ISwapData  {
         assetIn: string,
         assetOut: string
     },
-    // isBalancerPool: true,
     poolType: PoolType,
     swapFee: string,
+}
+
+export interface IRouteProposer {
+    amount: string,
+    t1: string,
+    t2: string,
+    kind: SwapType,
+    slipage: number,
+    sender: string,
+    recipient: string,
+    deadline: number
 }

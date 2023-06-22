@@ -6,6 +6,6 @@ export const ERROR = {
     "TOKEN_NOT_FOUND": "Token not found",
     "INTERNAL_SERVER_ERROR": "Internal server error",
     "KIND_NOT_VALID": "Kind not valid",
-    "AMOUNT_NOT_VALID": "Amount not valid"
-
+    "AMOUNT_NOT_VALID": "Amount not valid",
+    "PROPERTY_MISSING_IN_REQ_BODY": "Property missing in req body"
 }

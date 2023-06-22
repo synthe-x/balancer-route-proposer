@@ -1,4 +1,4 @@
-import { IConstantPrices } from "../types";
+import { IConstantPrices } from "../utils/types";
 
 
 

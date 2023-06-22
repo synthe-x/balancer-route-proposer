@@ -1,8 +1,8 @@
 import { SwapType } from "@balancer-labs/sdk";
 import { parseFixed } from "@ethersproject/bignumber";
 import { calcTokenInTokenOut } from "./calcTokenInTokenOut";
-import { IDijkstraResponse, ISwapData, PoolType, ITokenMap, IError } from "../../types";
-import { ERROR } from "../../error";
+import { IDijkstraResponse, ISwapData, PoolType, ITokenMap, IError } from "../../utils/types";
+import { ERROR } from "../../utils/error";
 
 
 
@@ -30,12 +30,6 @@ export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap,
 
             if (outPut[i].poolType !== PoolType.Synthex) {
 
-                // if (synData.length > 0) {
-                //     swapInput.push(synData);
-                //     assets.push([]);
-                //     synData = [];
-                //     index = 0;
-                // }
 
                 if (!assetsMap[outPut[i].assets.assetIn]) {
                     assetsMap[outPut[i].assets.assetIn] = index.toString();
@@ -86,7 +80,6 @@ export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap,
                     parameters: outPut[i].parameters,
                     userData: "0x",
                     assets: outPut[i].assets,
-                    // isBalancerPool: false,
                     poolType: outPut[i].poolType,
                     slipage: outPut[i].slipage,
                 });
@@ -102,15 +95,11 @@ export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap,
                     swapInput.push(swapData);
                     assets.push(asset);
                 }
-                // if (synData.length > 0) {
-                //     swapInput.push(synData);
-                //     assets.push([]);
-                // }
             }
         }
 
         const _swapInput = calcTokenInTokenOut(swapInput, kind, tokenMap, slipage);
-        
+
         if (typeof _swapInput == 'object' && "status" in _swapInput) {
             return _swapInput
         }
