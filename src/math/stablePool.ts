@@ -13,7 +13,7 @@ export function stablePoolcalcOutGivenIn(
     tokenIndexIn: number,
     tokenIndexOut: number,
     fpTokenAmountIn: BigNumberish
-  ): Decimal {
+  ): Decimal | null{
     const invariant = fromFp(calculateInvariant(fpBalances, amplificationParameter));
   
     const balances = fpBalances.map(fromFp);
@@ -25,6 +25,10 @@ export function stablePoolcalcOutGivenIn(
       invariant,
       tokenIndexOut
     );
+
+    if(!finalBalanceOut){
+        return null
+    }
   
     return toFp(balances[tokenIndexOut].sub(finalBalanceOut));
   }
@@ -37,7 +41,7 @@ export function stablePoolcalcInGivenOut(
     tokenIndexIn: number,
     tokenIndexOut: number,
     fpTokenAmountOut: BigNumberish
-): Decimal {
+): Decimal | null {
     const invariant = fromFp(calculateInvariant(fpBalances, amplificationParameter));
 
     const balances = fpBalances.map(fromFp);
@@ -52,6 +56,9 @@ export function stablePoolcalcInGivenOut(
         tokenIndexIn
     );
 
+    if(!finalBalanceIn){
+        return null;
+    }
     return toFp(finalBalanceIn.sub(balances[tokenIndexIn]));
 }
 
@@ -109,7 +116,7 @@ function _getTokenBalanceGivenInvariantAndAllOtherBalances(
     amplificationParameter: Decimal | BigNumberish,
     invariant: Decimal,
     tokenIndex: number
-): Decimal {
+): Decimal | null{
     let sum = decimal(0);
     let mul = decimal(1);
     const numTokens = balances.length;
@@ -135,6 +142,10 @@ function _getTokenBalanceGivenInvariantAndAllOtherBalances(
             )
         );
 
+    if(c.isNaN() || c.absoluteValue().equals(Infinity) || c.gt(0) ){
+        console.log(`c is not valid : ${c}, Not enough liquidity`)
+        return null
+    }
     return b
         .mul(-1)
         .add(b.pow(2).sub(c.mul(4)).squareRoot())

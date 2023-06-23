@@ -45,8 +45,12 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             const amount = fp(Big(amountOut).minus(Big(amountOut).times(pools[i].swapFee)).div(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(18));
 
                             pools[i].parameters[4] = amount;
-
-                            amountOut = Big(stablePoolcalcOutGivenIn(...pools[i].parameters as [BigNumberish[], BigNumberish, number, number, BigNumberish]).toString())
+                            const _stablePoolcalcOutGivenIn = stablePoolcalcOutGivenIn(...pools[i].parameters as [BigNumberish[], BigNumberish, number, number, BigNumberish])?.toString()
+                            if (!_stablePoolcalcOutGivenIn) {
+                                console.log(`Error @ calcTokenInTokenOut -1`)
+                                continue;
+                            }
+                            amountOut = Big(_stablePoolcalcOutGivenIn)
                                 .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
 
                             pools[i]["amount"] = "0";
@@ -99,8 +103,12 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             const amount = fp(Big(amountIn).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(18));
 
                             pools[i].parameters[4] = amount;
-
-                            amountIn = Big(stablePoolcalcInGivenOut(...pools[i].parameters as [BigNumberish[], BigNumberish, number, number, BigNumberish]).toString())
+                            const _stablePoolcalcInGivenOut = stablePoolcalcInGivenOut(...pools[i].parameters as [BigNumberish[], BigNumberish, number, number, BigNumberish])?.toString();
+                            if (!_stablePoolcalcInGivenOut) {
+                                console.log(`Error @ calcTokenInTokenOut -2`)
+                                continue;
+                            }
+                            amountIn = Big(_stablePoolcalcInGivenOut)
                                 .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(0);
 
                             amountIn = Big(amountIn).plus(Big(amountIn).times(pools[i].swapFee)).toFixed(0);

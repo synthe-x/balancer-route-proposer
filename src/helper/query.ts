@@ -17,6 +17,9 @@ export const queryStr = `{
         symbol
         decimals
         token{
+          pool{
+            id
+          }
             latestUSDPrice
             
         }

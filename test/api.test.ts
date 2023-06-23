@@ -3,12 +3,14 @@ import app from "../src/index"
 import chaiHttp from "chai-http";
 import chai from "chai";
 import { ERROR } from "../src/utils/error";
+import { _fetchPoolData, fetchPoolData } from "../src/sor/subGraphData/graphquery";
 
 use(chaiHttp);
 let server: any;
 describe(`Testing Api`, () => {
 
-    before(() => {
+    before(async() => {
+        await _fetchPoolData()
         server = app.listen(2000, () => {
             console.log(`Test Server Running On : ${2000}`);
         });
@@ -32,9 +34,9 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425981",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
-            "amount": 1,
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
+            "amount": 0.001,
             "kind": 0,
             "sender":"xyz",
             "recipient": "abc",
@@ -42,6 +44,7 @@ describe(`Testing Api`, () => {
             "slipage": 0.05
         
         });
+        // console.log(res.body)
         expect(res.status).to.be.equal(200);
         expect(res.body.status).to.equal(true);
         expect(res.body).have.property("data");
@@ -50,8 +53,8 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425981",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
             "amount": 1,
             "kind": 1,
             "sender":"xyz",
@@ -60,6 +63,7 @@ describe(`Testing Api`, () => {
             "slipage": 0.05
         
         });
+        // console.log(res.body)
         expect(res.status).to.be.equal(200);
         expect(res.body.status).to.equal(true);
         expect(res.body).have.property("data");
@@ -69,8 +73,8 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425981",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
             "amount": 1,
             "kind": 2,
             "sender":"xyz",
@@ -88,8 +92,8 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425982",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacg",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
             "amount": 1,
             "kind": 0,
             "sender":"xyz",
@@ -107,8 +111,8 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425981",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
             "amount": -1,
             "kind": 0,
             "sender":"xyz",
@@ -126,8 +130,8 @@ describe(`Testing Api`, () => {
         let res   = await chai.request(server)
         .get(`/getPath`)
         .send({
-            "tokenIn":"0x4ba519a744dc106a75308071f5b30d1f10425981",
-            "tokenOut": "0x1b88abb8bd559aecf682aec5f554967d5394583f",
+            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
+            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
             "amount": -1,
             "kind": 0,
             "recipient": "abc",

@@ -21,6 +21,9 @@ export interface IToken {
     symbol: string;
     decimals: number;
     token: {
+        pool?: {
+            id: string
+        }
         latestUSDPrice: string | null
     }
 }

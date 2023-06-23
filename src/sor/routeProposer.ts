@@ -38,7 +38,8 @@ export async function routeProposer(args: IRouteProposer):
         t2 = t2.toLowerCase();
 
         let usdPrice: number = kind == SwapType.SwapExactIn ? Number(constantPrice[t1]) : Number(constantPrice[t2]);
-        let allPools: IPool[] = dummyPool    //getPools()
+        let allPools: IPool[] = getPools();
+        // console.log("pools", allPools);
 
         if (!usdPrice) {
             return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
@@ -58,8 +59,9 @@ export async function routeProposer(args: IRouteProposer):
 
             for (const token of currPool.tokens) {
 
-                // if (!token.token?.latestUSDPrice) {
-                //     break;
+                // if (token.token?.pool?.id) {
+                //     console.log(token);
+                //     continue;
                 // }
 
                 currPooltokens.push(token);
@@ -136,7 +138,7 @@ export async function routeProposer(args: IRouteProposer):
 
         outPut.reverse();
 
-        // console.log(outPut);
+        console.log(outPut);
         const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
         return data
 

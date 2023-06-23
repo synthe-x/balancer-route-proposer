@@ -17,7 +17,7 @@ let tokensPrice: { [key: string]: string } = {};
 
 
 
-async function _fetchPoolData() {
+export async function _fetchPoolData() {
   try {
     // let arbitrum = "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2"
     let raex = "https://graph.testnet.mantle.xyz/subgraphs/name/prasad-kumkar/reax-swaps"
@@ -55,7 +55,6 @@ export function fetchPoolData() {
 
 
 export function getPools() {
-  console.log(pools);
   return pools
 }
 

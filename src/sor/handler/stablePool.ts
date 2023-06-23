@@ -32,7 +32,13 @@ export function handleStablePool(currPool: IPool, currPooltokens: IToken[], kind
             let amountInAfterFee: BigNumber = fp(Big(amountIn).minus(Big(amountIn).times(currPool.swapFee)).toFixed(18))
             let parameters: [BigNumberish[], BigNumberish, number, number, BigNumberish] = [allBalances, (currPool.amp!), tokens.indexOf(tokenIn.address), tokens.indexOf(tokenOut.address), amountInAfterFee]
 
-            let tokenOutAmount: string = Big(stablePoolcalcOutGivenIn(...parameters).toString()).div(1e18).toFixed(18);
+            const _stablePoolcalcOutGivenIn = stablePoolcalcOutGivenIn(...parameters)?.toString();
+
+            if (!_stablePoolcalcOutGivenIn) {
+                return
+            }
+            
+            let tokenOutAmount: string = Big(_stablePoolcalcOutGivenIn).div(1e18).toFixed(18);
 
             let expectedAmountUSD: string = Big(amountIn).times(tokenMap[tokenIn.address][1]).toFixed(18);
 
@@ -59,7 +65,11 @@ export function handleStablePool(currPool: IPool, currPooltokens: IToken[], kind
 
             let parameters: [BigNumberish[], BigNumberish, number, number, BigNumberish] = [allBalances, (currPool.amp!), tokens.indexOf(tokenIn.address), tokens.indexOf(tokenOut.address), fp(amountOut)]
 
-            let amountIn: string = Big(stablePoolcalcInGivenOut(...parameters).toString()).div(1e18).toFixed(18);
+            const _stablePoolcalcInGivenOut = stablePoolcalcInGivenOut(...parameters)?.toString();
+            if (!_stablePoolcalcInGivenOut) {
+                return
+            }
+            let amountIn: string = Big(_stablePoolcalcInGivenOut).div(1e18).toFixed(18);
 
             const expectedAmountUSD: string = Big(amountOut).times(tokenMap[tokenOut.address][1]).toFixed(18);
 
