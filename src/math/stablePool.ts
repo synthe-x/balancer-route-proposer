@@ -143,7 +143,7 @@ function _getTokenBalanceGivenInvariantAndAllOtherBalances(
         );
 
     if(c.isNaN() || c.absoluteValue().equals(Infinity) || c.gt(0) ){
-        console.log(`c is not valid : ${c}, Not enough liquidity`)
+        // console.log(`c is not valid : ${c}, Not enough liquidity`)
         return null
     }
     return b

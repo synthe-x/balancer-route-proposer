@@ -138,7 +138,7 @@ export async function routeProposer(args: IRouteProposer):
 
         outPut.reverse();
 
-        console.log(outPut);
+        // console.log(outPut);
         const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
         return data
 
