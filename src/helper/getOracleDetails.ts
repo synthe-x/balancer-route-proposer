@@ -72,7 +72,7 @@ export async function fetchOracleData() {
             let outPut = await _oracleMulticall(input);
 
             for (let i = 0; i < outPut.length; i++) {
-                config[poolAddresses[i]]["synths"] = outPut[i][0];
+                config[poolAddresses[i]]["synths"] = outPut[i][0]; 
             }
 
             await fs.writeFile(path.join(__dirname + "/synthexPoolConfig.json"), JSON.stringify(config));

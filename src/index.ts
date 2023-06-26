@@ -6,6 +6,7 @@ import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
 import rateLimit from 'express-rate-limit'
+import { startUpdatePrice } from './tokenPrice';
 const app = express();
 app.use(express.json());
 
@@ -27,5 +28,6 @@ app.use(limiter)
 app.use("/", route)
 // fetchOracleData()
 fetchPoolData()
+startUpdatePrice()
 
 export default app;

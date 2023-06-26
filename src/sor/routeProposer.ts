@@ -1,20 +1,13 @@
 import { SwapType } from '@balancer-labs/sdk';
-import Big from 'big.js'
 import { Graph } from '../graph/graph';
-import axios from 'axios';
-import { queryStr } from '../helper/query';
-import { balancerPoolBySynthex } from '../helper/constant';
-import { fetchOracleData } from '../helper/getOracleDetails';
-import { promises as fs } from "fs";
-import path from "path";
 import { handleWeightedPool } from './handler/weightedPool';
 import { handleStablePool } from './handler/stablePool';
-import { handleSynthexPool } from './handler/synthexPool';
-import { dummyPool, getPools, getTokenPrice } from './subGraphData/graphquery';
+import {  getPools} from './subGraphData/graphquery';
 import { routeSeperator } from './handler/routeSeperator';
 import { constantPrice } from './constant';
 import { ERROR } from '../utils/error';
 import { IDijkstraResponse, IError, IPool, IRouteProposer, ISwapData, IToken, ITokenMap } from '../utils/types';
+import { getPrices } from '../tokenPrice';
 
 
 
@@ -37,15 +30,13 @@ export async function routeProposer(args: IRouteProposer):
         t1 = t1.toLowerCase();
         t2 = t2.toLowerCase();
 
-        let usdPrice: number = kind == SwapType.SwapExactIn ? Number(constantPrice[t1]) : Number(constantPrice[t2]);
+        let usdPrice: number = kind == SwapType.SwapExactIn ? getPrices(t1) ?? Number(constantPrice[t1]) : getPrices(t2) ?? Number(constantPrice[t2]);
         let allPools: IPool[] = getPools();
-        // console.log("pools", allPools);
+
 
         if (!usdPrice) {
             return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
         }
-
-        // console.log(usdPrice);
 
         if (!allPools) return { status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500 }
 
@@ -59,13 +50,12 @@ export async function routeProposer(args: IRouteProposer):
 
             for (const token of currPool.tokens) {
 
-                // if (token.token?.pool?.id) {
-                //     console.log(token);
-                //     continue;
-                // }
-
+                const tokenPrice = getPrices(token.address) ?? Number(constantPrice[token.address]);
+                if (!tokenPrice) {
+                    continue;
+                }
                 currPooltokens.push(token);
-                tokenMap[token.address] = [token.symbol, constantPrice[token.address], token.decimals];
+                tokenMap[token.address] = [token.symbol, tokenPrice.toString(), token.decimals];
             }
 
             for (const tokenIn of currPooltokens) {
@@ -87,29 +77,9 @@ export async function routeProposer(args: IRouteProposer):
                     else if (currPool.poolType === "ComposableStable") {
                         handleStablePool(currPool, currPooltokens, kind, amount, usdPrice, tokenMap, tokenIn, tokenOut, graph);
                     }
-
-                    // console.log('===================================')
                 }
             }
         }
-
-        // const poolIds = Object.keys(pools);
-
-        // tokenMap = handleSynthexPool(poolIds, pools, amount, usdPrice, tokenMap, kind, graph);
-
-
-        // for (let pool of balancerPoolBySynthex) {
-
-        //     for (let tokenIn of pool.tokens) {
-
-        //         for (let tokenOut of pool.tokens) {
-        //             if (tokenIn.address === tokenOut.address) {
-        //                 continue;
-        //             }
-        //             handleWeightedPool(pool, amount, usdPrice, kind, tokenMap, tokenIn, tokenOut, graph);
-        //         }
-        //     }
-        // }
 
         const result: { [key: string]: IDijkstraResponse } | IError = graph.dijkstra(t1, t2);
 
@@ -138,7 +108,6 @@ export async function routeProposer(args: IRouteProposer):
 
         outPut.reverse();
 
-        // console.log(outPut);
         const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
         return data
 
