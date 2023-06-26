@@ -69,8 +69,8 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                     const web3 = new Web3();
                     // converting address to bytes32
                     const currPoolId = web3.utils.padLeft(poolId, 64).toLowerCase();
-                    console.log(+amountIn / 1e18, +amountOut / 1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
-                    console.log("                       ");
+                    // console.log(+amountIn / 1e18, +amountOut / 1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
+                    // console.log("                       ");
                     graph.addEdge(tokenIn, tokenOut, slipageUSD, currPoolId, amountIn, amountOut, PoolType.Synthex, parameters, "0")
                 }
             }
