@@ -5,8 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prod": "npm run build && node ./dist/app.js",
-    "start": "node ./dist/app.js",
+    "start": "npm run build && node ./dist/app.js",
     "dev": "ts-node app.ts",
     "test": "mocha -r ts-node/register ./test/api.test.ts --exit"
   },
