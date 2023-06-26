@@ -29,7 +29,6 @@ async function updatePrice() {
 }
 
 export function getPrices(adsress: string) {
-
     return priceData[adsress] ? Number(priceData[adsress][0]) : undefined;
 }
 

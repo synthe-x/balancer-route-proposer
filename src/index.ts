@@ -7,6 +7,7 @@ import compression from "compression";
 import morgan from "morgan";
 import rateLimit from 'express-rate-limit'
 import { startUpdatePrice } from './tokenPrice';
+import { fetchSynthPoolData } from './helper/getSyntDetails';
 const app = express();
 app.use(express.json());
 
@@ -26,7 +27,7 @@ const limiter = rateLimit({
 })
 app.use(limiter)
 app.use("/", route)
-// fetchOracleData()
+fetchSynthPoolData()
 fetchPoolData()
 startUpdatePrice()
 

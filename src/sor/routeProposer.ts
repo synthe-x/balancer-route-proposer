@@ -2,12 +2,15 @@ import { SwapType } from '@balancer-labs/sdk';
 import { Graph } from '../graph/graph';
 import { handleWeightedPool } from './handler/weightedPool';
 import { handleStablePool } from './handler/stablePool';
-import {  getPools} from './subGraphData/graphquery';
+import { getPools } from './subGraphData/graphquery';
 import { routeSeperator } from './handler/routeSeperator';
 import { constantPrice } from './constant';
 import { ERROR } from '../utils/error';
 import { IDijkstraResponse, IError, IPool, IRouteProposer, ISwapData, IToken, ITokenMap } from '../utils/types';
 import { getPrices } from '../tokenPrice';
+import { promises as fs } from "fs";
+import path from "path";
+import { handleSynthexPool } from './handler/synthexPool';
 
 
 
@@ -32,10 +35,24 @@ export async function routeProposer(args: IRouteProposer):
 
         let usdPrice: number = kind == SwapType.SwapExactIn ? getPrices(t1) ?? Number(constantPrice[t1]) : getPrices(t2) ?? Number(constantPrice[t2]);
         let allPools: IPool[] = getPools();
-
+        const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
 
         if (!usdPrice) {
-            return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
+            const tokenAddress = kind === SwapType.SwapExactIn ? t1 : t2
+            let flag = false;
+            for (const poolId of Object.keys(pools)) {
+
+                if (pools[poolId]["synths"][tokenAddress]) {
+                    const tokenPrice = getPrices(tokenAddress);
+                    if (tokenPrice) {
+                        usdPrice = tokenPrice
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            if (!flag)
+                return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
         }
 
         if (!allPools) return { status: false, error: ERROR.INTERNAL_SERVER_ERROR, statusCode: 500 }
@@ -80,6 +97,10 @@ export async function routeProposer(args: IRouteProposer):
                 }
             }
         }
+
+        const poolIds = Object.keys(pools);
+
+        tokenMap = handleSynthexPool(poolIds, pools, amount, usdPrice, tokenMap, kind, graph);
 
         const result: { [key: string]: IDijkstraResponse } | IError = graph.dijkstra(t1, t2);
 

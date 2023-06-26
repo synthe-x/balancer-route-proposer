@@ -3,6 +3,8 @@ import Big from "big.js";
 import { Graph } from "../../graph/graph";
 import Web3 from 'web3';
 import { PoolType } from "../../utils/types";
+import { getPrices } from "../../tokenPrice";
+import { constantPrice } from "../constant";
 
 
 
@@ -26,8 +28,13 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
 
                     const burnFee = Big(pools[poolId]["synths"][tokenIn]["burnFee"]).div(basePoints).toNumber();
                     const mintFee = Big(pools[poolId]["synths"][tokenOut]["mintFee"]).div(basePoints).toNumber();
-                    const tokenInPriceUSD = pools[poolId]["synths"][tokenIn]["priceUSD"];
-                    const tokenOutPriceUSD = pools[poolId]["synths"][tokenOut]["priceUSD"];
+
+                    const tokenInPriceUSD = getPrices(tokenIn) ?? Number(constantPrice[tokenIn]);
+                    const tokenOutPriceUSD = getPrices(tokenOut) ?? Number(constantPrice[tokenOut]);
+
+                    if (!tokenInPriceUSD || !tokenOutPriceUSD) {
+                        continue;
+                    }
 
                     if (!tokenMap[tokenIn]) {
                         tokenMap[tokenIn] = [pools[poolId]["synths"][tokenIn]["symbol"], tokenInPriceUSD, synthDecimals];
@@ -62,8 +69,8 @@ export function handleSynthexPool(poolIds: string[], pools: any, amount: string,
                     const web3 = new Web3();
                     // converting address to bytes32
                     const currPoolId = web3.utils.padLeft(poolId, 64).toLowerCase();
-                    // console.log(+amountIn/1e18, +amountOut/1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
-                    // console.log("                       ");
+                    console.log(+amountIn / 1e18, +amountOut / 1e18, slipageUSD, tokenIn, tokenOut, currPoolId);
+                    console.log("                       ");
                     graph.addEdge(tokenIn, tokenOut, slipageUSD, currPoolId, amountIn, amountOut, PoolType.Synthex, parameters, "0")
                 }
             }

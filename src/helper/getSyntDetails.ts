@@ -2,7 +2,6 @@ import axios from "axios"
 import { promises as fs } from "fs";
 
 
-// setSynthsConfig()
 
 export async function setSynthsConfig() {
     try {
@@ -12,7 +11,7 @@ export async function setSynthsConfig() {
         let data = await axios({
 
             method: "post",
-            url: `https://api.thegraph.com/subgraphs/name/prasad-kumkar/synthex-dev`,
+            url: `https://graph.testnet.mantle.xyz/subgraphs/name/prasad-kumkar/synthex-mantleTestnet`,
             data:
             {
                 query: `
@@ -61,7 +60,6 @@ export async function setSynthsConfig() {
 
             }
         }
-
         await fs.writeFile(__dirname + "/synthexPoolConfig.json", JSON.stringify(config));
 
     }
@@ -69,3 +67,11 @@ export async function setSynthsConfig() {
         console.log(`Error @ getCollAddresses`, error)
     }
 }
+
+
+export function fetchSynthPoolData() {
+    setSynthsConfig();
+    setInterval(() => {
+        setSynthsConfig()
+    }, 1000 * 60 * 60 * 24)
+  }
