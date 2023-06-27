@@ -11,7 +11,7 @@ import { ERROR } from "../utils/error";
 export async function getPath(req: Request, res: Response) {
     try {
 
-        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.body;
+        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.params;
 
         const input = [tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline]
         for (let e of input) {
