@@ -7,6 +7,7 @@ export interface IConstantPrices {
 }
 
 export interface IPool {
+    address: string;
     id: string;
     poolType: string;
     swapFee: string;
@@ -24,7 +25,9 @@ export interface IToken {
         pool?: {
             id: string
         }
-        latestUSDPrice: string | null
+        latestUSDPrice: null | {
+            price: string
+        }
     }
 }
 

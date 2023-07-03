@@ -7,6 +7,7 @@ export const queryStr = `{
   
     pools(first: 20, orderBy:totalLiquidity, orderDirection: desc, where:{poolType_in: ["ComposableStable","Weighted"]}) {
         id
+        address
         poolType
         swapFee
         amp

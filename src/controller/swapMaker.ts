@@ -5,23 +5,36 @@ import { ERROR } from "../utils/error";
 
 
 
+interface IGetPath {
+    tokenIn: string,
+    tokenOut: string,
+    amount: string,
+    kind: number,
+    slipage: number,
+    sender: string,
+    recipient: string,
+    deadline: number
+}
 
 
 
 export async function getPath(req: Request, res: Response) {
     try {
 
-        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.params;
+      
+        const { tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline } = req.query as any;
 
-        const input = [tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline]
+        const input = [tokenIn, tokenOut, amount, kind, slipage, sender, recipient, deadline];
+
         for (let e of input) {
-            
-            if (e === undefined) {
-                return res.status(400).send({ status: false, error: ERROR.PROPERTY_MISSING_IN_REQ_BODY });
+
+            if (e === undefined || !e) {
+                return res.status(400).send({ status: false, error: ERROR.PROPERTY_MISSING_IN_REQ_QUERY });
 
             }
         }
-        const data = await swapMaker(amount, tokenIn, tokenOut, kind, slipage, sender, recipient, deadline);
+
+        const data = await swapMaker(amount, tokenIn, tokenOut, Number(kind), Number(slipage), sender, recipient, Number(deadline));
 
         if (typeof data == 'object' && "status" in data || data === undefined) {
 

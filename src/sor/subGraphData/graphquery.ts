@@ -36,7 +36,7 @@ export async function _fetchPoolData() {
     for (const pool of pools) {
 
       for (const token of pool.tokens) {
-        tokensPrice[token.address] = token.token.latestUSDPrice ?? "0"
+        tokensPrice[token.address] = token.token.latestUSDPrice?.price ?? "0"
       }
     }
     // console.log(tokensPrice)
@@ -50,7 +50,7 @@ export function fetchPoolData() {
   _fetchPoolData();
   setInterval(() => {
     _fetchPoolData()
-  }, 1000 * 10)
+  }, 1000 * 5)
 }
 
 

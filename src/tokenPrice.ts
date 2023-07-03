@@ -37,7 +37,7 @@ export function startUpdatePrice() {
 
         setInterval(() => {
             updatePrice()
-        },3000);
+        },5000);
     }
     catch (error) {
         console.log(`Error @ startUpdatePrice: ${error}`)

@@ -7,5 +7,5 @@ export const ERROR = {
     "INTERNAL_SERVER_ERROR": "Internal server error",
     "KIND_NOT_VALID": "Kind not valid",
     "AMOUNT_NOT_VALID": "Amount not valid",
-    "PROPERTY_MISSING_IN_REQ_BODY": "Property missing in req body"
+    "PROPERTY_MISSING_IN_REQ_QUERY": "Property missing in req query"
 }

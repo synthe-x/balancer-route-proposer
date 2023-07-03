@@ -67,7 +67,10 @@ export async function routeProposer(args: IRouteProposer):
 
             for (const token of currPool.tokens) {
 
-                const tokenPrice = getPrices(token.address) ?? Number(constantPrice[token.address]);
+                if (token.address === currPool.address) {
+                    continue;
+                }
+                const tokenPrice = getPrices(token.address) ?? (isNaN(Number(constantPrice[token.address])) ? null : Number(constantPrice[token.address])) ?? token.token.latestUSDPrice;
                 if (!tokenPrice) {
                     continue;
                 }
@@ -128,7 +131,7 @@ export async function routeProposer(args: IRouteProposer):
         }
 
         outPut.reverse();
-
+        // console.log("outPut", outPut);
         const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
         return data
 

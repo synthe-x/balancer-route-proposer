@@ -84,7 +84,7 @@ export function calculateApproxInvariant(
     let prevInv = decimal(0);
     const ampTimesTotal = decimal(amplificationParameter).mul(totalCoins);
 
-    for (let i = 0; i < 255; i++) {
+    for (let i = 0; i < 255; i++) { 
         let P_D = balances[0].mul(totalCoins);
         for (let j = 1; j < totalCoins; j++) {
             P_D = P_D.mul(balances[j]).mul(totalCoins).div(inv);
