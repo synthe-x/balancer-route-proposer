@@ -141,7 +141,7 @@ describe(`Testing Api`, () => {
         });
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
-        expect(res.body.error).to.equal(ERROR.PROPERTY_MISSING_IN_REQ_BODY);
+        expect(res.body.error).to.equal(ERROR.PROPERTY_MISSING_IN_REQ_QUERY);
     })
 
 
