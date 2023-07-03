@@ -32,18 +32,8 @@ describe(`Testing Api`, () => {
 
     it('it sould check getPath api by exact token In', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": 0.001,
-            "kind": 0,
-            "sender":"xyz",
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aacf&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&sender=xyz&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=0.001`)
+       
         // console.log(res.body)
         expect(res.status).to.be.equal(200);
         expect(res.body.status).to.equal(true);
@@ -51,18 +41,7 @@ describe(`Testing Api`, () => {
     })
     it('it sould check getPath api by exact token Out', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": 1,
-            "kind": 1,
-            "sender":"xyz",
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aacf&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&sender=xyz&recipient=abc&deadline=12345&kind=1&slipage=0.05&amount=1`)
         // console.log(res.body)
         expect(res.status).to.be.equal(200);
         expect(res.body.status).to.equal(true);
@@ -71,18 +50,7 @@ describe(`Testing Api`, () => {
 
     it('it sould fail as not valid kind ', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": 1,
-            "kind": 2,
-            "sender":"xyz",
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aacf&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&sender=xyz&recipient=abc&deadline=12345&kind=2&slipage=0.05&amount=1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.KIND_NOT_VALID);
@@ -90,18 +58,7 @@ describe(`Testing Api`, () => {
 
     it('it sould fail as not token is not valid', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacg",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": 1,
-            "kind": 0,
-            "sender":"xyz",
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aace&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&sender=xyz&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.TOKEN_NOT_FOUND);
@@ -109,18 +66,7 @@ describe(`Testing Api`, () => {
 
     it('it sould fail as amount not valid', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": -1,
-            "kind": 0,
-            "sender":"xyz",
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aacf&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&sender=xyz&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=-1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.AMOUNT_NOT_VALID);
@@ -128,17 +74,7 @@ describe(`Testing Api`, () => {
 
     it('it sould fail as sender in missing', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath`)
-        .send({
-            "tokenIn":"0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-            "tokenOut": "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-            "amount": -1,
-            "kind": 0,
-            "recipient": "abc",
-            "deadline": 12345,
-            "slipage": 0.05
-        
-        });
+        .get(`/getPath?tokenIn=0x43d9c2dec2a83079641feafdabc4719bb362aacf&tokenOut=0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.PROPERTY_MISSING_IN_REQ_QUERY);
