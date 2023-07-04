@@ -9,7 +9,14 @@ import { ERROR } from "../../utils/error";
 
 
 
-
+/**
+ * 
+ * @param output 
+ * @param kind 
+ * @param tokenMap 
+ * @param slipage slipage in percentage, 1 means 1 % slipage
+ * @returns 
+ */
 export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: ITokenMap, slipage: number):
     (ISwapData[][] | IError) {
     try {
@@ -30,6 +37,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                         pools[0].amountIn = lastArr[lastArr.length - 1]["amountOut"];
                     }
                     else if (kind === SwapType.SwapExactOut) {
+                        pools.reverse();
                         pools[0].amountOut = lastArr[lastArr.length - 1]["amountIn"];
                     }
                 }
@@ -83,15 +91,16 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             pools[0]["amount"] = amountIn;
                         }
                     }
+                    amountOut = (Number(amountOut)* (1 - slipage / 100)).toFixed(0);
                     pools.push({ amountIn, amountOut });
-
-                    const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
+                    // const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
+                    const limits = [+amountIn, -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
 
                 else if (kind === SwapType.SwapExactOut) {
 
-                    pools.reverse();
+                   
                     let amountIn: string = pools[0].amountOut;
                     let amountOut: string = pools[0].amountOut;
 
@@ -141,9 +150,10 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             pools[0]["amount"] = amountOut;
                         }
                     }
-
+                    amountIn = (Number(amountIn) * (1 + slipage / 100)).toFixed(0);
                     pools.push({ amountIn, amountOut });
-                    const limits = [+amountIn * (1 + slipage / 100), -amountOut];
+                    // const limits = [+amountIn * (1 + slipage / 100), -amountOut];
+                    const limits = [+amountIn, -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                 }
             }
@@ -183,9 +193,11 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             delete pools[i][x];
                         })
                     }
+                    amountOut = (Number(amountOut)* (1 - slipage / 100)).toFixed(0)
                     pools.push({ amountIn, amountOut });
 
-                    const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
+                    // const limits = [+amountIn, -amountOut * (1 - slipage / 100)];
+                    const limits = [+amountIn, -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
                 else if (kind === SwapType.SwapExactOut) {
@@ -208,9 +220,10 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                             delete pools[i][x];
                         })
                     }
-
+                    amountIn = (Number(amountIn) * (1 + slipage / 100)).toFixed(0);
                     pools.push({ amountIn, amountOut });
-                    const limits = [+amountIn * (1 + slipage / 100), -amountOut];
+                    // const limits = [+amountIn * (1 + slipage / 100), -amountOut];
+                    const limits = [+amountIn, -amountOut];
                     updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
             }
