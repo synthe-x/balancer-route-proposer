@@ -8,7 +8,7 @@ import { PriorityQueue } from "./pQueue";
 
 
 
-// const pq = new PriorityQueue();
+
 // For non directed graph
 export class Graph {
 
@@ -32,9 +32,6 @@ export class Graph {
         //this is adding edge asset to connectingToken
         this.addVertex(asset);
         this.addList.get(asset).push({ conToken, slipage, pool, amountIn, amountOut, poolType, parameters, swapFee });
-
-        //this is adding conToken target to Asset.
-        // this.addList.get(conToken).push({ conToken: asset, slipage: slipage, pool: pool });
     };
 
     printGraph() {
@@ -200,43 +197,6 @@ export class Graph {
     }
 }
 
-// const g = new Graph();
 
-// g.addVertex("USDT")
-// g.addVertex("ETH")
-// g.addVertex("BTC")
-// g.addVertex("USDC")
-// g.addVertex("cUSD");
-// g.addVertex("fUSD");
-
-
-// // g.printGraph()
-
-// g.addEdge("USDT", "ETH", 1, "abcd");
-// g.addEdge("ETH", "USDT", 2, "abcd");
-// g.addEdge("ETH", "BTC", 2, "abcd");
-// g.addEdge("USDC", "USDT", 1, "abcd");
-// g.addEdge("USDT", "USDC", 6, "abcd");
-// g.addEdge("USDC", "fUSD", 2, "abcd");
-// g.addEdge("USDC", "cUSD", 1, "abcd");
-// g.addEdge("BTC", "ETH", 1, "abcd");
-// g.addEdge("BTC", "fUSD", 1, "abcd");
-// g.addEdge("cUSD", "USDC", 1, "abcd");
-// g.addEdge("cUSD", "fUSD", 1, "abcd");
-// g.addEdge("fUSD", "BTC", 2, "abcd");
-// g.addEdge("fUSD", "cUSD", 1, "abcd");
-// g.addEdge("fUSD", "USDC", 1, "abcd");
-
-
-
-// g.printGraph();
-
-// console.log(g.dijkstra("USDT", 10, "cUSD"))
-
-// g.bfs("USDC");
-// g.bft();
-// console.log("---------------")
-// g.dfs("A")
-// g.dft()
 
 
