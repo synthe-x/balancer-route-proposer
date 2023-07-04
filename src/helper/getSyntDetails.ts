@@ -14,8 +14,8 @@ export async function setSynthsConfig() {
             url: `https://graph.testnet.mantle.xyz/subgraphs/name/prasad-kumkar/synthex-mantleTestnet`,
             data:
             {
-                query: `
-                {
+                query: 
+              `{
                     pools{
                         id
                         name
@@ -25,6 +25,7 @@ export async function setSynthsConfig() {
                         synths{
                             burnFee
                             mintFee
+                            isActive
                             token{
                                 id
                                 symbol
@@ -32,7 +33,7 @@ export async function setSynthsConfig() {
                             }
                         }
                    }
-                  }`
+                }`
             }
         });
 
@@ -50,7 +51,7 @@ export async function setSynthsConfig() {
             };
 
             for (let synth of pool.synths) {
-
+                if (!synth.isActive) continue;
                 config[pool.id]["synths"][synth.token.id] = {
                     symbol: synth.token.symbol,
                     burnFee: synth.burnFee,
@@ -73,5 +74,5 @@ export function fetchSynthPoolData() {
     setSynthsConfig();
     setInterval(() => {
         setSynthsConfig()
-    }, 1000 * 60 * 60 * 24)
-  }
+    }, 1000 * 10)
+}

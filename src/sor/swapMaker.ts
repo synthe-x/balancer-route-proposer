@@ -4,6 +4,7 @@ import { routeProposer } from "./routeProposer";
 import { Response } from "express";
 import { ERROR } from "../utils/error";
 import { ISwapData } from "../utils/types";
+import { ZERO_ADDRESS } from "./constant";
 
 
 
@@ -17,9 +18,14 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
             return proposeRoute
         }
 
+        if (proposeRoute.isEth) {
+            proposeRoute.assets[0][0] = ZERO_ADDRESS;
+        }
+
         proposeRoute.swapInput.forEach((swapEle: any, index: number) => {
             if ('assets' in proposeRoute) {
                 swapEle.swap.pop();
+
                 swapEle.assets = proposeRoute.assets[index];
             }
             const newLimits = Array(swapEle.assets.length).fill(0);
@@ -55,7 +61,6 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
             swapEle.limits = newLimits;
 
         });
-
 
         const data = {
             kind: SwapType.SwapExactIn,

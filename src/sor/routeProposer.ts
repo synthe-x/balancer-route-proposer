@@ -4,7 +4,7 @@ import { handleWeightedPool } from './handler/weightedPool';
 import { handleStablePool } from './handler/stablePool';
 import { getPools } from './subGraphData/graphquery';
 import { routeSeperator } from './handler/routeSeperator';
-import { constantPrice } from './constant';
+import { MANTLE_TOKEN_ADDRESS, ZERO_ADDRESS, constantPrice } from './constant';
 import { ERROR } from '../utils/error';
 import { IDijkstraResponse, IError, IPool, IRouteProposer, ISwapData, IToken, ITokenMap } from '../utils/types';
 import { getPrices } from '../tokenPrice';
@@ -17,9 +17,11 @@ import { handleSynthexPool } from './handler/synthexPool';
 
 
 
+
 export async function routeProposer(args: IRouteProposer):
-    Promise<IError | { swapInput: ISwapData[][]; assets: string[][]; tokenMap: ITokenMap; }> {
+    Promise<IError | { swapInput: ISwapData[][]; assets: string[][]; tokenMap: ITokenMap; isEth: boolean }> {
     try {
+
         let { amount, t1, t2, kind, slipage, sender, recipient, deadline } = args;
 
         if (isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -29,10 +31,15 @@ export async function routeProposer(args: IRouteProposer):
         if (kind != SwapType.SwapExactIn && kind != SwapType.SwapExactOut) {
             return { status: false, error: ERROR.KIND_NOT_VALID, statusCode: 400 }
         }
-
+        
         t1 = t1.toLowerCase();
         t2 = t2.toLowerCase();
+        let isEth: boolean = false;
 
+        if(t1 === ZERO_ADDRESS){
+            isEth = true;
+            t1 = MANTLE_TOKEN_ADDRESS;
+        }
         let usdPrice: number = kind == SwapType.SwapExactIn ? getPrices(t1) ?? Number(constantPrice[t1]) : getPrices(t2) ?? Number(constantPrice[t2]);
         let allPools: IPool[] = getPools();
         const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/../helper/synthexPoolConfig.json"))).toString());
@@ -132,7 +139,11 @@ export async function routeProposer(args: IRouteProposer):
 
         outPut.reverse();
         // console.log("outPut", outPut);
-        const data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
+        let data = routeSeperator(outPut, tokenMap, kind, slipage, sender, recipient, deadline);
+        if(typeof data == 'object' && "swapInput" in data){
+          data.isEth = isEth;
+          return  data;
+        }
         return data
 
     } catch (error) {

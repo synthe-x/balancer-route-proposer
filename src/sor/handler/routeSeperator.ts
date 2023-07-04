@@ -16,6 +16,7 @@ export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap,
         swapInput: ISwapData[][];
         assets: string[][];
         tokenMap: ITokenMap;
+        isEth : boolean
     }) {
     try {
 
@@ -104,7 +105,7 @@ export function routeSeperator(outPut: IDijkstraResponse[], tokenMap: ITokenMap,
             return _swapInput
         }
         swapInput = _swapInput;
-        return { swapInput, assets, tokenMap };
+        return { swapInput, assets, tokenMap , isEth :false};
     }
     catch (error) {
         console.log("Error @ routeProposerHelper", error);

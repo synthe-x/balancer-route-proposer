@@ -30,7 +30,6 @@ export async function getPath(req: Request, res: Response) {
 
             if (e === undefined || !e) {
                 return res.status(400).send({ status: false, error: ERROR.PROPERTY_MISSING_IN_REQ_QUERY });
-
             }
         }
 
