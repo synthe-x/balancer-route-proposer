@@ -28,7 +28,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
 
                 swapEle.assets = proposeRoute.assets[index];
             }
-            const newLimits = Array(swapEle.assets.length).fill(0);
+            const newLimits = Array(swapEle.assets.length).fill("0");
             swapEle.swap.forEach((swap: any, index: number) => {
 
                 if (kind === SwapType.SwapExactIn) {
@@ -37,7 +37,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                         newLimits[swap.assetInIndex] = swapEle.limits[0];
                     }
                     else {
-                        newLimits[swap.assetInIndex] = 0;
+                        newLimits[swap.assetInIndex] = "0";
                     }
                     if (index === swapEle.swap.length - 1) {
                         newLimits[swap.assetOutIndex] = swapEle.limits[1];
@@ -49,7 +49,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                         newLimits[swap.assetOutIndex] = swapEle.limits[1];
                     }
                     else {
-                        newLimits[swap.assetInIndex] = 0;
+                        newLimits[swap.assetInIndex] = "0";
                     }
                     if (index === swapEle.swap.length - 1) {
                         newLimits[swap.assetInIndex] = swapEle.limits[0];
@@ -63,9 +63,9 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
         });
 
         const data = {
-            kind: SwapType.SwapExactIn,
+            kind,
             swaps: proposeRoute.swapInput,
-            deadline: deadline,
+            deadline,
             funds: {
                 sender: sender,
                 recipient: recipient,
