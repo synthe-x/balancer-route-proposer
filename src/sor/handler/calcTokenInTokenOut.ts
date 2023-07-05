@@ -51,6 +51,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                     for (let i in pools) {
 
                         if (pools[i].poolType === PoolType.Stable) {
+                            //amountIn
                             const amount = fp(Big(amountOut).minus(Big(amountOut).times(pools[i].swapFee)).div(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(18));
 
                             pools[i].parameters[4] = amount;
@@ -66,8 +67,8 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                            deleteKeysOfPool.forEach((x: string) => {
-                                delete pools[i][x];
+                            deleteKeysOfPool.forEach((key: string) => {
+                                delete pools[i][key];
                             })
                         }
                         else if (pools[i].poolType === PoolType.Weighted) {
@@ -82,18 +83,18 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                            deleteKeysOfPool.forEach((x: string) => {
-                                delete pools[i][x];
+                            deleteKeysOfPool.forEach((key: string) => {
+                                delete pools[i][key];
                             })
                         }
 
-                        if (+i === pools.length - 1) {
+                        if (Number(i) === pools.length - 1) {
                             pools[0]["amount"] = amountIn;
                         }
                     }
                     // adding slipage either on first swap or last swap 
                     if (index === 0) {
-                        amountOut = (Number(amountOut) * (1 - slipage / 100)).toFixed(0);
+                        amountOut = Big(amountOut).times(Big(1).minus(Big(slipage).div(100))).toFixed(0);
                     }
 
                     pools.push({ amountIn, amountOut });
@@ -128,11 +129,12 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                            deleteKeysOfPool.forEach((x: string) => {
-                                delete pools[i][x];
+                            deleteKeysOfPool.forEach((key: string) => {
+                                delete pools[i][key];
                             })
                         }
                         else if (pools[i].poolType === PoolType.Weighted) {
+
                             const amount = amountIn;
 
                             pools[i].parameters[0] = amount
@@ -143,18 +145,18 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                             const deleteKeysOfPool = ["swapFee", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                            deleteKeysOfPool.forEach((x: string) => {
-                                delete pools[i][x];
+                            deleteKeysOfPool.forEach((key: string) => {
+                                delete pools[i][key];
                             })
                         }
 
-                        if (+i === pools.length - 1) {
+                        if (Number(i) === pools.length - 1) {
                             pools[0]["amount"] = amountOut;
                         }
                     }
 
                     if (index === output.length - 1) {
-                        amountIn = (Number(amountIn) * (1 + slipage / 100)).toFixed(0);
+                        amountIn = Big(amountIn).times(Big(1).plus(Big(slipage).div(100))).toFixed(0);
                     }
 
                     pools.push({ amountIn, amountOut });
@@ -194,13 +196,13 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                        deleteKeysOfPool.forEach((x: string) => {
-                            delete pools[i][x];
+                        deleteKeysOfPool.forEach((key: string) => {
+                            delete pools[i][key];
                         })
                     }
 
                     if (index === 0) {
-                        amountOut = (Number(amountOut) * (1 - slipage / 100)).toFixed(0)
+                        amountOut = Big(amountOut).times(Big(1).minus(Big(slipage).div(100))).toFixed(0);
                     }
                     pools.push({ amountIn, amountOut });
                     const limits = [amountIn, `-${amountOut}`];
@@ -222,13 +224,13 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                         const deleteKeysOfPool = ["slipage", "amountIn", "amountOut", "parameters", "assets", "poolType"];
 
-                        deleteKeysOfPool.forEach((x: string) => {
-                            delete pools[i][x];
+                        deleteKeysOfPool.forEach((key: string) => {
+                            delete pools[i][key];
                         })
                     }
 
                     if (index === output.length - 1) {
-                        amountIn = (Number(amountIn) * (1 + slipage / 100)).toFixed(0);
+                        amountIn = Big(amountIn).times(Big(1).plus(Big(slipage).div(100))).toFixed(0);
                     }
                     pools.push({ amountIn, amountOut });
                     const limits = [amountIn, `-${amountOut}`];
@@ -236,7 +238,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                 }
             }
         })
-        
+
 
         if (kind === SwapType.SwapExactOut) {
             updatedOutput.reverse()
