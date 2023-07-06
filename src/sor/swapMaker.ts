@@ -23,14 +23,15 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
         }
 
         //updating proposeRoute.swapInput
-        updateLimits(proposeRoute, kind);
+        proposeRoute = updateLimits(proposeRoute, kind);
 
         const fData = FEData(proposeRoute.swapInput, kind, slipage, proposeRoute.tokenMap);
 
         if (kind === SwapType.SwapExactOut) {
             // re routing as GivenIn.
-            if(t1 === ZERO_ADDRESS) t1 = MANTLE_TOKEN_ADDRESS;
-            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[t1][2]).toString();
+            let tokenIn = t1;
+            if(tokenIn === ZERO_ADDRESS) tokenIn = MANTLE_TOKEN_ADDRESS;
+            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[tokenIn][2]).toString();
            
             proposeRoute = await routeProposer(
                 { amount, t1, t2, kind: SwapType.SwapExactIn, slipage, sender, recipient, deadline }
@@ -43,8 +44,9 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
             if (proposeRoute.isEth) {
                 proposeRoute.assets[0][0] = ZERO_ADDRESS;
             }
-            updateLimits(proposeRoute, kind);
             kind = SwapType.SwapExactIn;
+            proposeRoute = updateLimits(proposeRoute, kind);
+           
         }
 
         const data = {

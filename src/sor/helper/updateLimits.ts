@@ -61,4 +61,7 @@ export function updateLimits(proposeRoute: {
         swapEle.limits = newLimits;
 
     });
+
+    return proposeRoute
+
 }
