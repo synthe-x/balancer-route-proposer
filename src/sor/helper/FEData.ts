@@ -22,7 +22,7 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
         const assetInIndex = swapInput[0]["swap"][0]["assetInIndex"];
         const tokenIn = swapInput[0]["assets"][assetInIndex];
         
-        const maxOut = Big(amountOut).times(Big(1).plus(Big(_slipage).div(100))).toFixed(0);
+        const minOut = Big(amountOut).times(Big(1).plus(Big(_slipage).div(100))).toFixed(0);
 
         const amountInUSD = Big(amountIn).times(tokenMap[tokenIn][1]).div(10 ** tokenMap[tokenIn][2]).toFixed(18);
         
@@ -30,7 +30,7 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
         const priceImpact = Big(slipage).div(amountInUSD).times(100);
         return {
             estimatedOut: amountOut,
-            maxOut,
+            minOut,
             priceImpact
         }
     }
