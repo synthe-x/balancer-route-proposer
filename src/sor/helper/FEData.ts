@@ -17,20 +17,20 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
 
     const tokenOut = swapInput[swapInputLength - 1]["assets"][assetOutIndex];
     const amountOutUSD = Big(amountOut).times(tokenMap[tokenOut][1]).div(10 ** tokenMap[tokenOut][2]).toFixed(18);
-    
+
     if (kind === SwapType.SwapExactIn) {
         const assetInIndex = swapInput[0]["swap"][0]["assetInIndex"];
         const tokenIn = swapInput[0]["assets"][assetInIndex];
-        
-        const minOut = Big(amountOut).times(Big(1).plus(Big(_slipage).div(100))).toFixed(0);
+
+        const estimatedOut = Big(amountOut).times(Big(1).plus(Big(_slipage).div(100))).toFixed(0);
 
         const amountInUSD = Big(amountIn).times(tokenMap[tokenIn][1]).div(10 ** tokenMap[tokenIn][2]).toFixed(18);
-        
+
         const slipage = Big(amountInUSD).minus(amountOutUSD).toString();
         const priceImpact = Big(slipage).div(amountInUSD).times(100);
         return {
-            estimatedOut: amountOut,
-            minOut,
+            estimatedOut,
+            minOut: amountOut,
             priceImpact
         }
     }
@@ -38,7 +38,7 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
         const firstSwapLength = swapInput[0]["swap"].length;
         const assetInIndex = swapInput[0]["swap"][firstSwapLength - 1]["assetInIndex"];
         const tokenIn = swapInput[0]["assets"][assetInIndex];
-        
+
         const estimatedIn = Big(amountIn).times(Big(1).minus(Big(_slipage).div(100))).toFixed(0);
 
         const amountInUSD = Big(amountIn).times(tokenMap[tokenIn][1]).div(10 ** tokenMap[tokenIn][2]).toFixed(18);

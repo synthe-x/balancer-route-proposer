@@ -2,6 +2,9 @@ import { SwapType } from "@balancer-labs/sdk";
 import { routeProposer } from "./routeProposer";
 import { ZERO_ADDRESS } from "./constant";
 import { FEData } from "./helper/FEData";
+import { ISwapData, ITokenMap } from "../utils/types";
+import Big from "big.js";
+import { updateLimits } from "./helper/updateLimits";
 
 
 
@@ -19,47 +22,29 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
             proposeRoute.assets[0][0] = ZERO_ADDRESS;
         }
 
-        proposeRoute.swapInput.forEach((swapEle: any, index: number) => {
-            if ('assets' in proposeRoute) {
-                swapEle.swap.pop();
-
-                swapEle.assets = proposeRoute.assets[index];
-            }
-            const newLimits = Array(swapEle.assets.length).fill("0");
-            swapEle.swap.forEach((swap: any, index: number) => {
-
-                if (kind === SwapType.SwapExactIn) {
-
-                    if (index === 0) {
-                        newLimits[swap.assetInIndex] = swapEle.limits[0];
-                    }
-                    else {
-                        newLimits[swap.assetInIndex] = "0";
-                    }
-                    if (index === swapEle.swap.length - 1) {
-                        newLimits[swap.assetOutIndex] = swapEle.limits[1];
-                    }
-                }
-                else if (kind === SwapType.SwapExactOut) {
-
-                    if (index === 0) {
-                        newLimits[swap.assetOutIndex] = swapEle.limits[1];
-                    }
-                    else {
-                        newLimits[swap.assetInIndex] = "0";
-                    }
-                    if (index === swapEle.swap.length - 1) {
-                        newLimits[swap.assetInIndex] = swapEle.limits[0];
-                    }
-                }
-
-            });
-
-            swapEle.limits = newLimits;
-
-        });
+        //updating proposeRoute.swapInput
+        updateLimits(proposeRoute, kind);
 
         const fData = FEData(proposeRoute.swapInput, kind, slipage, proposeRoute.tokenMap);
+
+        if (kind === SwapType.SwapExactOut) {
+            // re routing as GivenIn.
+            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[t1][2]).toString();
+           
+            proposeRoute = await routeProposer(
+                { amount, t1, t2, kind: SwapType.SwapExactIn, slipage, sender, recipient, deadline }
+                );
+
+            if (typeof proposeRoute == "object" && "status" in proposeRoute) {
+                return proposeRoute
+            }
+
+            if (proposeRoute.isEth) {
+                proposeRoute.assets[0][0] = ZERO_ADDRESS;
+            }
+            updateLimits(proposeRoute, kind);
+            kind = SwapType.SwapExactIn;
+        }
 
         const data = {
             kind,
@@ -80,6 +65,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
         console.log(`Error @ swapMaker`, error)
     }
 }
+
 
 
 

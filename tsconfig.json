@@ -103,5 +103,5 @@
    
   },
   "files": ["./app.ts", "./src/helper/synthexPoolConfig.json"], 
-  "include": ["./src", "./test"]
+  "include": ["./src"]
 }
