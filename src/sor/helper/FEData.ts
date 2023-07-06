@@ -1,6 +1,7 @@
 import { SwapType } from "@balancer-labs/sdk";
 import { ITokenMap } from "../../utils/types";
 import Big from "big.js";
+import { MANTLE_TOKEN_ADDRESS, ZERO_ADDRESS } from "../constant";
 
 
 
@@ -20,8 +21,8 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
 
     if (kind === SwapType.SwapExactIn) {
         const assetInIndex = swapInput[0]["swap"][0]["assetInIndex"];
-        const tokenIn = swapInput[0]["assets"][assetInIndex];
-
+        let tokenIn = swapInput[0]["assets"][assetInIndex];
+        if (tokenIn === ZERO_ADDRESS) tokenIn = MANTLE_TOKEN_ADDRESS;
         const estimatedOut = Big(amountOut).times(Big(1).plus(Big(_slipage).div(100))).toFixed(0);
 
         const amountInUSD = Big(amountIn).times(tokenMap[tokenIn][1]).div(10 ** tokenMap[tokenIn][2]).toFixed(18);
@@ -37,8 +38,8 @@ export function FEData(swapInput: any, kind: SwapType, _slipage: number, tokenMa
     else {
         const firstSwapLength = swapInput[0]["swap"].length;
         const assetInIndex = swapInput[0]["swap"][firstSwapLength - 1]["assetInIndex"];
-        const tokenIn = swapInput[0]["assets"][assetInIndex];
-
+        let tokenIn = swapInput[0]["assets"][assetInIndex];
+        if(tokenIn === ZERO_ADDRESS) tokenIn = MANTLE_TOKEN_ADDRESS;
         const estimatedIn = Big(amountIn).times(Big(1).minus(Big(_slipage).div(100))).toFixed(0);
 
         const amountInUSD = Big(amountIn).times(tokenMap[tokenIn][1]).div(10 ** tokenMap[tokenIn][2]).toFixed(18);

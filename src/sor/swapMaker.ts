@@ -1,6 +1,6 @@
 import { SwapType } from "@balancer-labs/sdk";
 import { routeProposer } from "./routeProposer";
-import { ZERO_ADDRESS } from "./constant";
+import { MANTLE_TOKEN_ADDRESS, ZERO_ADDRESS } from "./constant";
 import { FEData } from "./helper/FEData";
 import { ISwapData, ITokenMap } from "../utils/types";
 import Big from "big.js";
@@ -29,6 +29,7 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
 
         if (kind === SwapType.SwapExactOut) {
             // re routing as GivenIn.
+            if(t1 === ZERO_ADDRESS) t1 = MANTLE_TOKEN_ADDRESS;
             const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[t1][2]).toString();
            
             proposeRoute = await routeProposer(
