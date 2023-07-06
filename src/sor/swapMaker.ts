@@ -1,10 +1,7 @@
 import { SwapType } from "@balancer-labs/sdk";
-import Big from "big.js";
 import { routeProposer } from "./routeProposer";
-import { Response } from "express";
-import { ERROR } from "../utils/error";
-import { ISwapData } from "../utils/types";
 import { ZERO_ADDRESS } from "./constant";
+import { FEData } from "./helper/FEData";
 
 
 
@@ -62,6 +59,8 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
 
         });
 
+        const fData = FEData(proposeRoute.swapInput, kind, slipage, proposeRoute.tokenMap);
+
         const data = {
             kind,
             swaps: proposeRoute.swapInput,
@@ -71,7 +70,8 @@ export async function swapMaker(amount: string, t1: string, t2: string, kind: Sw
                 recipient: recipient,
                 fromInternalBalance: false,
                 toInternalBalance: false
-            }
+            },
+            fData
         }
 
         return data

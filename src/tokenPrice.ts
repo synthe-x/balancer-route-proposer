@@ -34,7 +34,7 @@ export function getPrices(adsress: string) {
 
 export function startUpdatePrice() {
     try {
-
+        updatePrice()
         setInterval(() => {
             updatePrice()
         },5000);

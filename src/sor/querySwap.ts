@@ -8,27 +8,19 @@ import { getABI } from "../helper/getAbi";
 querySwap(
     [
         {
-            "poolId": "0x1f8f5a97082224b87320f3cea41fbe25dd35d1c2000000000000000000000000",
-            "assetInIndex": "1",
-            "assetOutIndex": "2",
-            "userData": "0x",
-            "amount": "1049178302680306"
-        },
-        {
-            "poolId": "0xf881526dd752f1d35635ccc1c2c697bf2275c570000200000000000000000003",
+            "poolId": "0x186423bfe65426534814ad90ff6fad85e8523fe2000000000000000000000001",
             "assetInIndex": "0",
             "assetOutIndex": "1",
             "userData": "0x",
-            "amount": "0"
+            "amount": "1000659284044483009"
         }
     ],
     [
-        "0x55f317247632d42584848064a0cc0190fe1f6c58",
-        "0x43d9c2dec2a83079641feafdabc4719bb362aacf",
-        "0x4398c702b845584fca3adbbf1738f2c3cfb9fb5b"
+        "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
+        "0x0134369386a3aebcf0704946c0df89fe78fa2b50"
     ], 
     [],
-    1
+    0
     )
 export async function querySwap(swap: any, tokens: string[], tokensDetails: any, kind: SwapType) {
     try {
