@@ -61,7 +61,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                                 continue;
                             }
                             amountOut = Big(_stablePoolcalcOutGivenIn)
-                                .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
+                                .times(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).div(1e18).toFixed(0);
 
                             pools[i]["amount"] = "0";
 
@@ -112,7 +112,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                         if (pools[i].poolType === PoolType.Stable) {
 
                             //amountOut
-                            const amount = fp(Big(amountIn).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(18));
+                            const amount = fp(Big(amountIn).plus(Big(amountIn).times(pools[i].swapFee)).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(18));
 
                             pools[i].parameters[4] = amount;
                             const _stablePoolcalcInGivenOut = stablePoolcalcInGivenOut(...pools[i].parameters as [BigNumberish[], BigNumberish, number, number, BigNumberish])?.toString();
@@ -121,9 +121,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                                 continue;
                             }
                             amountIn = Big(_stablePoolcalcInGivenOut)
-                                .div(1e18).times(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).toFixed(0);
-
-                            amountIn = Big(amountIn).plus(Big(amountIn).times(pools[i].swapFee)).toFixed(0);
+                                .times(10 ** tokenMap[pools[i]['assets']['assetIn']][2]).div(1e18).toFixed(0);
 
                             pools[i]["amount"] = "0";
 
@@ -214,7 +212,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                     for (let i in pools) {
 
-                        const amountUSD = Big(amountIn).times(tokenMap[pools[i]['assets']['assetOut']][1]).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(0);
+                        const amountUSD = Big(amountIn).times(tokenMap[pools[i]['assets']['assetOut']][1]).div(10 ** tokenMap[pools[i]['assets']['assetOut']][2]).toFixed(18);
 
                         const slipageUSD = Big(amountUSD).times(pools[i].parameters.burnFee).plus(Big(amountUSD).times((pools[i].parameters.mintFee))).toFixed(18);
 
@@ -243,7 +241,7 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
         if (kind === SwapType.SwapExactOut) {
             updatedOutput.reverse()
         }
-        return updatedOutput as ISwapData[][]
+        return updatedOutput as ISwapData[][];
 
     }
     catch (error) {
