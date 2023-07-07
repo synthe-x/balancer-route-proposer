@@ -207,11 +207,11 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                     if (index === 0) {
                         amountOut = Big(amountOut).times(Big(1).minus(Big(slipage).div(100))).toFixed(0);
                         const limits = [amountIn, `-${amountOut}`];
-                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+                        updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                     }
                     else{
                         const limits = [MAX_LIMIT, `-${amountOut}`];
-                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+                        updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
 
                     }
                     pools.push({ amountIn, amountOut });
