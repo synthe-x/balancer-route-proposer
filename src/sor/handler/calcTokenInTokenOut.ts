@@ -5,6 +5,7 @@ import { stablePoolcalcInGivenOut, stablePoolcalcOutGivenIn } from "../../math/s
 import { weightedPoolTokenInForExactTokenOut, weightedPoolTokenInForTokenOut } from "../../math/wieghtedPool";
 import { IError, IPool, ISwapData, ITokenMap, PoolType } from "../../utils/types";
 import { ERROR } from "../../utils/error";
+import { MAX_LIMIT } from "../constant";
 
 
 
@@ -95,11 +96,15 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
                     // adding slipage either on first swap or last swap 
                     if (index === 0) {
                         amountOut = Big(amountOut).times(Big(1).minus(Big(slipage).div(100))).toFixed(0);
+                        const limits = [amountIn, `-${amountOut}`];
+                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+                    }
+                    else{
+                        const limits = [MAX_LIMIT, `-${amountOut}`];
+                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
                     }
 
-                    pools.push({ amountIn, amountOut });
-                    const limits = [amountIn, `-${amountOut}`];
-                    updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+                    pools.push({ amountIn, amountOut });  
                 }
 
                 else if (kind === SwapType.SwapExactOut) {
@@ -201,10 +206,15 @@ export function calcTokenInTokenOut(output: any, kind: SwapType, tokenMap: IToke
 
                     if (index === 0) {
                         amountOut = Big(amountOut).times(Big(1).minus(Big(slipage).div(100))).toFixed(0);
+                        const limits = [amountIn, `-${amountOut}`];
+                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+                    }
+                    else{
+                        const limits = [MAX_LIMIT, `-${amountOut}`];
+                        updatedOutput.push({ swap: pools, isBalancerPool: true, limits: limits });
+
                     }
                     pools.push({ amountIn, amountOut });
-                    const limits = [amountIn, `-${amountOut}`];
-                    updatedOutput.push({ swap: pools, isBalancerPool: false, limits: limits });
                 }
                 else if (kind === SwapType.SwapExactOut) {
                     let amountIn: string = pools[0].amountOut;

@@ -8,16 +8,16 @@ import { getABI } from "../helper/getAbi";
 querySwap(
     [
         {
-            "poolId": "0x186423bfe65426534814ad90ff6fad85e8523fe2000000000000000000000001",
+            "poolId": "0x464febcbf56eafa3dd5e0aa6a2369fbb2a6e7a2d000000000000000000000002",
             "assetInIndex": "0",
             "assetOutIndex": "1",
             "userData": "0x",
-            "amount": "1000659284044483009"
+            "amount": "49211450421419994"
         }
     ],
     [
-        "0xe49b5e1a76a9a081ca6be9ac31df63afc1814e2e",
-        "0x0134369386a3aebcf0704946c0df89fe78fa2b50"
+        "0x71020714cb8f12d20266371f741cd467f5a8f1eb",
+        "0xa2eeff8fa7e7848c3ea6d689e143a0ac2545f6c0"
     ], 
     [],
     0
@@ -29,7 +29,7 @@ export async function querySwap(swap: any, tokens: string[], tokensDetails: any,
             tokens, tokensDetails, kind)
         const provider = new ethers.providers.JsonRpcProvider("https://rpc.testnet.mantle.xyz")
 
-        let vault = new ethers.Contract("0xc08e0bC5981622E3f70b8406ff9F19BbcEDa5bF1", await getABI("Vault"), provider);
+        let vault = new ethers.Contract("0xe62786e628245b779e3e328fb3790641ed0e0d04", await getABI("Vault"), provider);
         const owner = new ethers.Wallet("7cf03fae45cb10d4e3ba00a10deeacfc8cea1be0eebcfb7277a7df2e5074a405", provider);
         let queryBatchSwap = await vault.connect(owner).callStatic.queryBatchSwap(
             kind,
