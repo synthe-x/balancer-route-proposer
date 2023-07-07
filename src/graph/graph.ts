@@ -121,7 +121,7 @@ export class Graph {
         }
 
         if (dist[source] == undefined) {
-            return { status: false, error: ERROR.TOKEN_NOT_FOUND, statusCode: 400 }
+            return { status: false, error: ERROR.PAIR_NOT_AVAILABLE, statusCode: 400 }
         }
 
         dist[source]["slipage"] = 0;
