@@ -1,7 +1,7 @@
 
 
 import express from "express";
-import { getPath} from "../controller/swapMaker";
+import { getPath} from "../controller/route-proposer.controller";
 
 const router = express.Router();
 

@@ -2,8 +2,10 @@ import { expect, use, } from "chai";
 import app from "../src/index"
 import chaiHttp from "chai-http";
 import chai from "chai";
-import { ERROR } from "../src/utils/error";
-import { _fetchPoolData, fetchPoolData } from "../src/sor/subGraphData/graphquery";
+import { _fetchPoolData } from "../src/controller/route-proposer-handler/handler/balancer-pool/fetch-data";
+import { ERROR } from "../src/controller/route-proposer-handler/utils/error";
+
+
 
 use(chaiHttp);
 let server: any;
@@ -72,9 +74,9 @@ describe(`Testing Api`, () => {
         expect(res.body.error).to.equal(ERROR.AMOUNT_NOT_VALID);
     })
 
-    it('it sould fail as sender in missing', async()=>{
+    it('it sould fail as recipient in missing', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath?tokenIn=0x86fb905bd14923fd66a5353d2cda955564ddb9aa&tokenOut=0xc5463c3e462e730a7bf625569e96dd275d136d2d&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=1`)
+        .get(`/getPath?tokenIn=0x86fb905bd14923fd66a5353d2cda955564ddb9aa&tokenOut=0xc5463c3e462e730a7bf625569e96dd275d136d2d&deadline=12345&kind=0&slipage=0.05&amount=1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.PROPERTY_MISSING_IN_REQ_QUERY);

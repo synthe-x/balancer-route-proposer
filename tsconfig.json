@@ -102,6 +102,6 @@
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
    
   },
-  "files": ["./app.ts", "./src/helper/synthexPoolConfig.json"], 
+  "files": ["./app.ts", "./src/controller/route-proposer-handler/handler/synth-pool/synth-pool-config.json"], 
   "include": ["./src"]
 }
