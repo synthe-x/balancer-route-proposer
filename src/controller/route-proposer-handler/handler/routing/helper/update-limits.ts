@@ -62,6 +62,4 @@ export function updateLimits(proposeRoute: {
 
     });
 
-    return proposeRoute
-
 }

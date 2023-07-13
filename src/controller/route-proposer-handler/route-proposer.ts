@@ -44,7 +44,8 @@ export async function routeProposer(args: IRouteProposer):
         t1 = t1.toLowerCase();
         t2 = t2.toLowerCase();
         let isEth: boolean = false;
-
+        const tokenIn = t1;
+        const tokenOut = t2;
         if (t1 === ZERO_ADDRESS || t2 === ZERO_ADDRESS) {
             isEth = true;
             t1 = t1 === ZERO_ADDRESS ? MANTLE_TOKEN_ADDRESS : t1;
@@ -78,7 +79,7 @@ export async function routeProposer(args: IRouteProposer):
         const graph: Graph = new Graph();
 
         let tokenMap: ITokenMap = {};
-
+        
         handleBalancerPool(allPools, tokenMap, amount, kind, usdPrice, graph);
 
         const poolIds = Object.keys(pools);
@@ -118,12 +119,12 @@ export async function routeProposer(args: IRouteProposer):
             return proposeRoute;
         }
 
-        if (proposeRoute.isEth) {
+        if (isEth) {
 
-            if (t1 === ZERO_ADDRESS) {
+            if (tokenIn === ZERO_ADDRESS) {
                 proposeRoute.assets[0][0] = ZERO_ADDRESS;
             }
-            if (t2 === ZERO_ADDRESS) {
+            if (tokenOut === ZERO_ADDRESS) {
                 const lastAssetsIndex = proposeRoute.assets.length - 1;
                 const lastAssetsArrayIndex = proposeRoute.assets[lastAssetsIndex].length - 1;
                 proposeRoute.assets[lastAssetsIndex][lastAssetsArrayIndex] = ZERO_ADDRESS;
@@ -137,12 +138,12 @@ export async function routeProposer(args: IRouteProposer):
 
         if (kind === SwapType.SwapExactOut) {
             // re routing as GivenIn.
-            let tokenIn = t1;
+            let _tokenIn = t1;
 
-            if (tokenIn === ZERO_ADDRESS) tokenIn = MANTLE_TOKEN_ADDRESS;
+            if (_tokenIn === ZERO_ADDRESS) _tokenIn = MANTLE_TOKEN_ADDRESS;
 
-            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[tokenIn][2]).toString();
-
+            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[_tokenIn][2]).toString();
+            t1 = tokenIn; t2 = tokenOut; // restore initial state
             const data = await routeProposer(
                 { amount, t1, t2, kind: SwapType.SwapExactIn, slipage, recipient, deadline }
             );
