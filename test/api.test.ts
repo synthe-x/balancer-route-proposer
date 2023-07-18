@@ -34,7 +34,7 @@ describe(`Testing Api`, () => {
 
     it('it sould check getPath api by exact token In', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath?tokenIn=0x86fb905bd14923fd66a5353d2cda955564ddb9aa&tokenOut=0xc5463c3e462e730a7bf625569e96dd275d136d2d&sender=xyz&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=0.001`)
+        .get(`/getPath?tokenIn=0x8c1ec9edfcdd0aac3bf1f3a0d01612ee94bd8d6f&tokenOut=0x90412c41aabbbb771a996906dc413da9b7092077&sender=xyz&recipient=abc&deadline=12345&kind=0&slipage=0.05&amount=0.001`)
        
         // console.log(res.body)
         expect(res.status).to.be.equal(200);
@@ -43,7 +43,7 @@ describe(`Testing Api`, () => {
     })
     it('it sould check getPath api by exact token Out', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath?tokenIn=0x86fb905bd14923fd66a5353d2cda955564ddb9aa&tokenOut=0xc5463c3e462e730a7bf625569e96dd275d136d2d&sender=xyz&recipient=abc&deadline=12345&kind=1&slipage=0.05&amount=1`)
+        .get(`/getPath?tokenIn=0x8c1ec9edfcdd0aac3bf1f3a0d01612ee94bd8d6f&tokenOut=0x90412c41aabbbb771a996906dc413da9b7092077&sender=xyz&recipient=abc&deadline=12345&kind=1&slipage=0.05&amount=1`)
         // console.log(res.body)
         expect(res.status).to.be.equal(200);
         expect(res.body.status).to.equal(true);
@@ -52,7 +52,7 @@ describe(`Testing Api`, () => {
 
     it('it sould fail as not valid kind ', async()=>{
         let res   = await chai.request(server)
-        .get(`/getPath?tokenIn=0x86fb905bd14923fd66a5353d2cda955564ddb9aa&tokenOut=0xc5463c3e462e730a7bf625569e96dd275d136d2d&sender=xyz&recipient=abc&deadline=12345&kind=2&slipage=0.05&amount=1`)
+        .get(`/getPath?tokenIn=0xcabae6f6ea1ecab08ad02fe02ce9a44f09aebfa2&tokenOut=0x0f148bf7a48dc14ee17bb4f81708c1aef20b2397&sender=xyz&recipient=abc&deadline=12345&kind=2&slipage=0.05&amount=1`)
         expect(res.status).to.be.equal(400);
         expect(res.body.status).to.equal(false);
         expect(res.body.error).to.equal(ERROR.KIND_NOT_VALID);

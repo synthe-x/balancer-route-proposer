@@ -15,7 +15,7 @@ async function updatePrice() {
     try {
         let data
         try {
-            data = await axios.get(`https://prices.reax.one/get_all_prices`);
+            data = await axios.get(`http://prices.mainnet.reax.one/get_all_prices`);
         }
         catch (error) {
             console.log(`Error @ call axios updatePrice: ${error}`);
