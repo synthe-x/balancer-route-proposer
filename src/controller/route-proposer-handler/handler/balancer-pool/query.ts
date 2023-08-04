@@ -16,9 +16,7 @@ export const queryStr = `{
       token{
         pool{
           id
-        }
-          latestUSDPrice
-          
+        }        
       }
     }
   }
