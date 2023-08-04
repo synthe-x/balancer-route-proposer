@@ -74,5 +74,5 @@ export function fetchSynthPoolData() {
     setSynthsConfig();
     setInterval(() => {
         setSynthsConfig()
-    }, 1000 * 10)
+    }, 1000 * 60 * 10)
 }

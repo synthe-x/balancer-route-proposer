@@ -13,9 +13,13 @@ let priceData: any = {};
 
 async function updatePrice() {
     try {
-        let data
+        let data;
+        const pricesEndPoint = process.env.PRICE_ENDPOINT!;
+        if(!pricesEndPoint) {
+            throw Error("PRICE_ENDPOINT Not found @ .env")
+        }
         try {
-            data = await axios.get(`https://prices.reax.one/get_all_prices`);
+            data = await axios.get(pricesEndPoint);
         }
         catch (error) {
             console.log(`Error @ call axios updatePrice: ${error}`);
