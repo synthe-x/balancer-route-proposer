@@ -20,7 +20,7 @@ let tokensPrice: { [key: string]: string } = {};
 
 export async function _fetchPoolData() {
   try {
-    console.log(process.env.BALANCER_POOL_SUBGRAPH);
+    
     let data = await axios({
       method: "post",
       url: process.env.BALANCER_POOL_SUBGRAPH,
@@ -31,7 +31,7 @@ export async function _fetchPoolData() {
     });
 
     pools = data.data.data.pools;
-    console.log(pools);
+    
     for (const pool of pools) {
 
       for (const token of pool.tokens) {

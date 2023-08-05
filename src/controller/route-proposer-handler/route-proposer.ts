@@ -55,7 +55,6 @@ export async function routeProposer(args: IRouteProposer):
         let usdPrice: number = kind == SwapType.SwapExactIn ? getPrices(t1) ?? Number(constantPrice[t1]) : getPrices(t2) ?? Number(constantPrice[t2]);
         let allPools: IPool[] = getPools();
         const pools = JSON.parse((await fs.readFile(path.join(__dirname + "/handler/synth-pool/synth-pool-config.json"))).toString());
-
         if (!usdPrice) {
             const tokenAddress = kind === SwapType.SwapExactIn ? t1 : t2
             let flag = false;
@@ -64,7 +63,7 @@ export async function routeProposer(args: IRouteProposer):
                 if (pools[poolId]["synths"][tokenAddress]) {
                     const tokenPrice = getPrices(tokenAddress);
                     if (tokenPrice) {
-                        usdPrice = tokenPrice
+                        usdPrice = tokenPrice;
                         flag = true;
                         break;
                     }
