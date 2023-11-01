@@ -10,7 +10,7 @@ import { handleSynthPool } from './handler/handle-pools/synth-pool';
 import { getPrices } from './helper/fetch-price/token-prices';
 import { Graph } from './helper/graph/graph';
 import { handleBalancerPool } from './handler/handle-pools/balancer-pool';
-import { updateLimits } from './handler/routing/helper/update-limits';
+import { updateLimits, updateMaxLimits } from './handler/routing/helper/update-limits';
 import { FEData } from './handler/routing/helper/front-end-data';
 import Big from 'big.js';
 
@@ -23,7 +23,7 @@ import Big from 'big.js';
 
 export async function routeProposer(args: IRouteProposer):
     Promise<IError | {
-        kind: SwapType.SwapExactIn;
+        kind: SwapType;
         swaps: ISwapInput[][];
         deadline: number;
         recipient: string;
@@ -79,7 +79,7 @@ export async function routeProposer(args: IRouteProposer):
         const graph: Graph = new Graph();
 
         let tokenMap: ITokenMap = {};
-        
+
         handleBalancerPool(allPools, tokenMap, amount, kind, usdPrice, graph);
 
         const poolIds = Object.keys(pools);
@@ -135,27 +135,29 @@ export async function routeProposer(args: IRouteProposer):
         updateLimits(proposeRoute, kind);
 
         const fData = FEData(proposeRoute.swapInput, kind, slipage, proposeRoute.tokenMap);
+        // to make limits in effective
+        updateMaxLimits(proposeRoute, kind);
 
-        if (kind === SwapType.SwapExactOut) {
-            // re routing as GivenIn.
-            let _tokenIn = t1;
+        // if (kind === SwapType.SwapExactOut) {
+        //     // re routing as GivenIn.
+        //     let _tokenIn = t1;
 
-            if (_tokenIn === ZERO_ADDRESS) _tokenIn = MANTLE_TOKEN_ADDRESS;
+        //     if (_tokenIn === ZERO_ADDRESS) _tokenIn = MANTLE_TOKEN_ADDRESS;
 
-            const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[_tokenIn][2]).toString();
-            t1 = tokenIn; t2 = tokenOut; // restore initial state
-            const data = await routeProposer(
-                { amount, t1, t2, kind: SwapType.SwapExactIn, slipage, recipient, deadline }
-            );
+        //     const amount = Big(fData.maxIn).div(10 ** proposeRoute.tokenMap[_tokenIn][2]).toString();
+        //     t1 = tokenIn; t2 = tokenOut; // restore initial state
+        //     const data = await routeProposer(
+        //         { amount, t1, t2, kind: SwapType.SwapExactIn, slipage, recipient, deadline }
+        //     );
 
-            if (typeof data == "object" && "status" in data) {
-                return data
-            }
-            // that fData is preserve state for exactOut 
-            data.fData = fData;
-            return data
+        //     if (typeof data == "object" && "status" in data) {
+        //         return data
+        //     }
+        //     // that fData is preserve state for exactOut 
+        //     data.fData = fData;
+        //     return data
 
-        }
+        // }
 
         const data = {
             kind,
